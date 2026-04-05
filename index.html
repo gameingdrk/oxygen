@@ -407,8 +407,11 @@
                 if (typeof supabase !== "undefined") {
                     supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
                     
-                    // اختبار الاتصال
-                    const { data, error } = await supabaseClient.from("supplies").select("count", { count: "exact", head: true });
+                    // اختبار الاتصال - محاولة قراءة البيانات
+                    const { data, error } = await supabaseClient
+                        .from("supplies")
+                        .select("*")
+                        .limit(1);
                     
                     if (!error) {
                         useLocalStorage = false;
@@ -416,10 +419,12 @@
                         document.getElementById("dbStatus").style.background = "rgba(16, 185, 129, 0.9)";
                         await loadFromSupabase();
                         return true;
+                    } else {
+                        console.log("Supabase error:", error.message);
                     }
                 }
             } catch (error) {
-                console.log("Cannot connect to Supabase, using local storage");
+                console.log("Cannot connect to Supabase:", error.message);
             }
             
             useLocalStorage = true;
@@ -441,12 +446,16 @@
                     .select("*")
                     .order("id");
                 
-                if (error) throw error;
+                if (error) {
+                    console.error("Error loading supplies:", error);
+                    throw error;
+                }
+                
+                console.log("Loaded supplies from Supabase:", data);
                 
                 if (data && data.length > 0) {
                     currentSupplies = data;
                 } else {
-                    // إذا كانت الجداول فارغة، قم بإنشائها
                     await initializeSupabaseTables();
                 }
                 
@@ -516,15 +525,29 @@
             const totalFull = currentSupplies.reduce((sum, item) => sum + (item.full_count || 0), 0);
             document.getElementById("totalFull").textContent = totalFull;
             
-            const today = new Date().toISOString().split("T")[0];
+            const today = new Date().toLocaleDateString("ar-EG");
             
-            const todayExchanges = exchangeHistory.filter(e => e.exchange_date?.startsWith(today) || new Date(e.date).toISOString().split("T")[0] === today);
+            const todayExchanges = exchangeHistory.filter(e => {
+                const exchangeDate = e.exchange_date ? new Date(e.exchange_date).toLocaleDateString("ar-EG") : 
+                                      (e.date ? new Date(e.date).toLocaleDateString("ar-EG") : null);
+                return exchangeDate === today;
+            });
             document.getElementById("totalExchanges").textContent = todayExchanges.length;
             
-            const todayImports = stockMovements.filter(m => m.movement_type === "import" && (m.movement_date?.startsWith(today) || new Date(m.date).toISOString().split("T")[0] === today));
+            const todayImports = stockMovements.filter(m => {
+                if (m.movement_type !== "import") return false;
+                const movementDate = m.movement_date ? new Date(m.movement_date).toLocaleDateString("ar-EG") :
+                                              (m.date ? new Date(m.date).toLocaleDateString("ar-EG") : null);
+                return movementDate === today;
+            });
             document.getElementById("totalImports").textContent = todayImports.length;
             
-            const todayExports = stockMovements.filter(m => m.movement_type === "export" && (m.movement_date?.startsWith(today) || new Date(m.date).toISOString().split("T")[0] === today));
+            const todayExports = stockMovements.filter(m => {
+                if (m.movement_type !== "export") return false;
+                const movementDate = m.movement_date ? new Date(m.movement_date).toLocaleDateString("ar-EG") :
+                                              (m.date ? new Date(m.date).toLocaleDateString("ar-EG") : null);
+                return movementDate === today;
+            });
             document.getElementById("totalExports").textContent = todayExports.length;
         }
 
@@ -608,27 +631,47 @@
                 saveLocalData();
                 
                 // محاولة التحديث في Supabase
+                let supabaseSaveFailed = false;
                 if (!useLocalStorage && supabaseClient) {
                     try {
-                        await supabaseClient
+                        console.log("Updating Supabase - supplyId:", supplyId, "newQuantity:", newQuantity, "type:", type);
+                        
+                        const { error: updateError } = await supabaseClient
                             .from("supplies")
-                            .update({ full_count: newQuantity, updated_at: new Date() })
+                            .update({ full_count: newQuantity, updated_at: new Date().toISOString() })
                             .eq("id", supplyId);
                         
-                        await supabaseClient.from("stock_movements").insert([movement]);
+                        if (updateError) {
+                            console.error("Supabase update error:", updateError);
+                            throw updateError;
+                        }
+                        
+                        const { error: insertError } = await supabaseClient.from("stock_movements").insert([movement]);
+                        if (insertError) {
+                            console.error("Supabase insert error:", insertError);
+                            throw insertError;
+                        }
+                        
+                        console.log("Supabase update successful");
+                        
+                        // إعادة تحميل السجلات من Supabase
+                        await loadHistoryFromSupabase();
                     } catch (e) {
-                        console.warn("Supabase update failed, data saved locally");
+                        console.error("Supabase update failed:", e);
+                        supabaseSaveFailed = true;
                     }
                 }
                 
                 updateNumberAnimation(supplyId, newQuantity);
                 await updateStatistics();
                 
+                const warningMsg = supabaseSaveFailed ? '<div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> تم الحفظ محلياً (تحقق من Console للأخطاء)</div>' : '';
+                
                 Swal.fire({
                     icon: "success",
                     title: type === "import" ? "تم الاستيراد بنجاح!" : "تم التصدير بنجاح!",
-                    html: `<div class="text-center"><i class="fas fa-${type === "import" ? "download" : "upload"}" style="font-size: 60px; color: ${type === "import" ? "#10b981" : "#f59e0b"};"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>الرصيد الجديد: <strong class="text-success">${newQuantity}</strong></p></div>`,
-                    timer: 2500, showConfirmButton: false
+                    html: `<div class="text-center"><i class="fas fa-${type === "import" ? "download" : "upload"}" style="font-size: 60px; color: ${type === "import" ? "#10b981" : "#f59e0b"};"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>الرصيد الجديد: <strong class="text-success">${newQuantity}</strong></p>${warningMsg}</div>`,
+                    timer: supabaseSaveFailed ? 5000 : 2500, showConfirmButton: false
                 });
             } catch (error) {
                 Swal.fire("❌ خطأ", error.message || "فشلت العملية", "error");
@@ -670,16 +713,40 @@
                 saveLocalData();
                 
                 // محاولة التحديث في Supabase
+                let supabaseSaveFailed = false;
                 if (!useLocalStorage && supabaseClient) {
                     try {
-                        await supabaseClient
+                        console.log("Updating Supabase - supplyId:", supplyId, "newFullCount:", newFullCount, "newEmptyCount:", newEmptyCount);
+                        
+                        const { error: updateError } = await supabaseClient
                             .from("supplies")
-                            .update({ full_count: newFullCount, empty_count: newEmptyCount, updated_at: new Date() })
+                            .update({ 
+                                full_count: newFullCount, 
+                                empty_count: newEmptyCount, 
+                                updated_at: new Date().toISOString() 
+                            })
                             .eq("id", supplyId);
                         
-                        await supabaseClient.from("exchange_history").insert([exchange]);
+                        if (updateError) {
+                            console.error("Supabase update error:", updateError);
+                            throw updateError;
+                        }
+                        
+                        console.log("Supabase supply update successful, now inserting exchange history...");
+                        
+                        const { error: insertError } = await supabaseClient.from("exchange_history").insert([exchange]);
+                        if (insertError) {
+                            console.error("Supabase insert error:", insertError);
+                            throw insertError;
+                        }
+                        
+                        console.log("Supabase update successful");
+                        
+                        // إعادة تحميل البيانات من Supabase للتأكد
+                        await loadFromSupabase();
                     } catch (e) {
-                        console.warn("Supabase update failed, data saved locally");
+                        console.error("Supabase update failed:", e);
+                        supabaseSaveFailed = true;
                     }
                 }
                 
@@ -692,10 +759,12 @@
                 }
                 await updateStatistics();
                 
+                const warningMsg = supabaseSaveFailed ? '<div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> تم الحفظ محلياً (فشل الاتصال بقاعدة البيانات)</div>' : '';
+                
                 Swal.fire({
                     icon: "success", title: "🎉 تم الاستبدال بنجاح!",
-                    html: `<div class="text-center"><i class="fas fa-check-circle" style="font-size:60px;color:#10b981;"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>👤 ${customerName}</p><p>📞 ${customerPhone}</p><hr><p>المتبقي: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p></div>`,
-                    timer: 3000, showConfirmButton: false
+                    html: `<div class="text-center"><i class="fas fa-check-circle" style="font-size:60px;color:#10b981;"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>👤 ${customerName}</p><p>📞 ${customerPhone}</p><hr><p>المتبقي: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p>${warningMsg}</div>`,
+                    timer: supabaseSaveFailed ? 5000 : 3000, showConfirmButton: false
                 });
             } catch (error) {
                 Swal.fire("❌ خطأ", error.message || "فشلت عملية الاستبدال", "error");
