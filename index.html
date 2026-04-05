@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>نظام إدارة أسطوانات الأكسجين | Oxygen Manager Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.djnbootstrap/5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', 'Tahoma', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        .supplies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .supply-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            animation: fadeInUp 0.5s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .supply-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        .supply-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            position: relative;
+        }
+        .supply-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .supply-badge.exchangeable { background: #10b981; color: white; }
+        .supply-badge.non-exchangeable { background: #f59e0b; color: white; }
+        .supply-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            padding-left: 80px;
+        }
+        .supply-type { color: #6b7280; font-size: 0.9rem; }
+        .counts-container {
+            display: flex;
+            padding: 20px;
+            gap: 15px;
+            background: #f9fafb;
+        }
+        .count-box {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .count-box.full {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        .count-box.empty {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        .count-number {
+            font-size: 2rem;
+            font-weight: 800;
+            transition: all 0.3s ease;
+        }
+        .count-label { font-size: 0.85rem; opacity: 0.9; }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .exchange-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .import-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .export-btn { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .action-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .fab-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .fab-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        .db-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .supplies-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 1.8rem; }
+            .action-btn { font-size: 0.9rem; padding: 10px; }
+        }
+        .number-animation { animation: numberPop 0.3s ease; }
+        @keyframes numberPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-custom">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-bolt" style="color: #667eea; font-size: 2rem;"></i>
+                    <span class="logo ms-2">Oxygen Manager Pro</span>
+                </div>
+                <div>
+                    <span class="badge bg-light text-dark p-2">
+                        <i class="fas fa-clock"></i>
+                        <span id="currentTime"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="position: relative; z-index: 1;" id="app">
+        <div id="errorMessage" style="display: none;"></div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                    <i class="fas fa-boxes" style="color: #667eea;"></i>
+                </div>
+                <div class="stat-value" id="totalFull">0</div>
+                <div>إجمالي المخزون</div>
+                <small class="text-muted">كل المستلزمات</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b98120, #05966920);">
+                    <i class="fas fa-exchange-alt" style="color: #10b981;"></i>
+                </div>
+                <div class="stat-value" id="totalExchanges">0</div>
+                <div>عمليات الاستبدال</div>
+                <small class="text-muted">اليوم</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b20, #d9770620);">
+                    <i class="fas fa-download" style="color: #f59e0b;"></i>
+                </div>
+                <div class="stat-value" id="totalImports">0</div>
+                <div>عمليات الاستيراد</div>
+                <small class="text-muted">اليوم</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ef444420, #dc262620);">
+                    <i class="fas fa-upload" style="color: #ef4444;"></i>
+                </div>
+                <div class="stat-value" id="totalExports">0</div>
+                <div>عمليات التصدير</div>
+                <small class="text-muted">اليوم</small>
+            </div>
+        </div>
+
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن مستلزم...">
+        </div>
+        
+        <div class="main-content">
+            <div id="suppliesList" class="supplies-grid"></div>
+        </div>
+    </div>
+
+    <button class="fab-button" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    <div class="db-status" id="dbStatus">🔄 جاري التحميل...</div>
+
+    <script>
+        const SUPABASE_CONFIG = {
+            url: "https://vvcrbweiuhkocoqezdzw.supabase.co",
+            anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2Y3Jid2VpdWhrb2NvcWV6ZHp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTg4NzEsImV4cCI6MjA5MDg5NDg3MX0.JiE-PvnwAkSpNNlKMS6T5GkRgjSN3BlZhqTJy-u63_U"
+        };
+
+        let supabaseClient = null;
+        let currentSupplies = [];
+        let useLocalStorage = true;
+        let exchangeHistory = [];
+        let stockMovements = [];
+
+        // البيانات الافتراضية
+        const DEFAULT_SUPPLIES = [
+            { id: 1, name: "أسطوانة أكسجين 5 لتر", type: "oxygen", full_count: 25, empty_count: 8, can_be_exchanged: true },
+            { id: 2, name: "أسطوانة أكسجين 10 لتر", type: "oxygen", full_count: 15, empty_count: 5, can_be_exchanged: true },
+            { id: 3, name: "قناع أكسجين", type: "accessories", full_count: 50, empty_count: 0, can_be_exchanged: false },
+            { id: 4, name: "منظم ضغط", type: "accessories", full_count: 30, empty_count: 0, can_be_exchanged: false },
+            { id: 5, name: "خرطوم أكسجين", type: "accessories", full_count: 40, empty_count: 0, can_be_exchanged: false },
+            { id: 6, name: "أسطوانة أكسجين 15 لتر", type: "oxygen", full_count: 10, empty_count: 3, can_be_exchanged: true }
+        ];
+
+        // تحميل البيانات من localStorage
+        function loadLocalData() {
+            try {
+                const savedSupplies = localStorage.getItem('oxygen_supplies');
+                if (savedSupplies) {
+                    currentSupplies = JSON.parse(savedSupplies);
+                } else {
+                    currentSupplies = JSON.parse(JSON.stringify(DEFAULT_SUPPLIES));
+                }
+                
+                const savedExchanges = localStorage.getItem('oxygen_exchanges');
+                exchangeHistory = savedExchanges ? JSON.parse(savedExchanges) : [];
+                
+                const savedMovements = localStorage.getItem('oxygen_movements');
+                stockMovements = savedMovements ? JSON.parse(savedMovements) : [];
+                
+                return true;
+            } catch (e) {
+                console.error("Error loading local data:", e);
+                currentSupplies = JSON.parse(JSON.stringify(DEFAULT_SUPPLIES));
+                exchangeHistory = [];
+                stockMovements = [];
+                return false;
+            }
+        }
+
+        // حفظ البيانات في localStorage
+        function saveLocalData() {
+            try {
+                localStorage.setItem('oxygen_supplies', JSON.stringify(currentSupplies));
+                localStorage.setItem('oxygen_exchanges', JSON.stringify(exchangeHistory));
+                localStorage.setItem('oxygen_movements', JSON.stringify(stockMovements));
+                return true;
+            } catch (e) {
+                console.error("Error saving local data:", e);
+                return false;
+            }
+        }
+
+        // محاولة الاتصال بـ Supabase
+        async function initSupabase() {
+            try {
+                if (typeof supabase !== "undefined") {
+                    supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                    
+                    // اختبار الاتصال
+                    const { data, error } = await supabaseClient.from("supplies").select("count", { count: "exact", head: true });
+                    
+                    if (!error) {
+                        useLocalStorage = false;
+                        document.getElementById("dbStatus").innerHTML = "✅ متصل بقاعدة البيانات";
+                        document.getElementById("dbStatus").style.background = "rgba(16, 185, 129, 0.9)";
+                        await loadFromSupabase();
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log("Cannot connect to Supabase, using local storage");
+            }
+            
+            useLocalStorage = true;
+            document.getElementById("dbStatus").innerHTML = "💾 وضع التخزين المحلي";
+            document.getElementById("dbStatus").style.background = "rgba(245, 158, 11, 0.9)";
+            loadLocalData();
+            updateStatistics();
+            renderSupplies();
+            return false;
+        }
+
+        // تحميل من Supabase
+        async function loadFromSupabase() {
+            if (!supabaseClient) return;
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from("supplies")
+                    .select("*")
+                    .order("id");
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    currentSupplies = data;
+                } else {
+                    // إذا كانت الجداول فارغة، قم بإنشائها
+                    await initializeSupabaseTables();
+                }
+                
+                await loadHistoryFromSupabase();
+                updateStatistics();
+                renderSupplies();
+            } catch (error) {
+                console.error("Error loading from Supabase:", error);
+                useLocalStorage = true;
+                loadLocalData();
+                updateStatistics();
+                renderSupplies();
+            }
+        }
+
+        // تهيئة الجداول في Supabase
+        async function initializeSupabaseTables() {
+            if (!supabaseClient) return;
+            
+            try {
+                // إضافة البيانات الافتراضية
+                for (const supply of DEFAULT_SUPPLIES) {
+                    const { error } = await supabaseClient
+                        .from("supplies")
+                        .insert([supply]);
+                    
+                    if (error && error.code !== '23505') { // تجاهل خطأ التكرار
+                        console.error("Error inserting supply:", error);
+                    }
+                }
+                
+                currentSupplies = JSON.parse(JSON.stringify(DEFAULT_SUPPLIES));
+            } catch (error) {
+                console.error("Error initializing tables:", error);
+            }
+        }
+
+        // تحميل السجلات من Supabase
+        async function loadHistoryFromSupabase() {
+            if (!supabaseClient) return;
+            
+            try {
+                const { data: exchanges } = await supabaseClient
+                    .from("exchange_history")
+                    .select("*");
+                if (exchanges) exchangeHistory = exchanges;
+                
+                const { data: movements } = await supabaseClient
+                    .from("stock_movements")
+                    .select("*");
+                if (movements) stockMovements = movements;
+            } catch (error) {
+                console.log("History tables not found, using local");
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString("ar-EG");
+            const timeElement = document.getElementById("currentTime");
+            if (timeElement) timeElement.textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        async function updateStatistics() {
+            const totalFull = currentSupplies.reduce((sum, item) => sum + (item.full_count || 0), 0);
+            document.getElementById("totalFull").textContent = totalFull;
+            
+            const today = new Date().toISOString().split("T")[0];
+            
+            const todayExchanges = exchangeHistory.filter(e => e.exchange_date?.startsWith(today) || new Date(e.date).toISOString().split("T")[0] === today);
+            document.getElementById("totalExchanges").textContent = todayExchanges.length;
+            
+            const todayImports = stockMovements.filter(m => m.movement_type === "import" && (m.movement_date?.startsWith(today) || new Date(m.date).toISOString().split("T")[0] === today));
+            document.getElementById("totalImports").textContent = todayImports.length;
+            
+            const todayExports = stockMovements.filter(m => m.movement_type === "export" && (m.movement_date?.startsWith(today) || new Date(m.date).toISOString().split("T")[0] === today));
+            document.getElementById("totalExports").textContent = todayExports.length;
+        }
+
+        function renderSupplies() {
+            const searchInput = document.getElementById("searchInput");
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+            const filtered = currentSupplies.filter(
+                (item) => item.name && item.name.toLowerCase().includes(searchTerm)
+            );
+
+            const container = document.getElementById("suppliesList");
+            if (!container) return;
+            container.innerHTML = "";
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center p-5 bg-white rounded-3"><i class="fas fa-box-open fa-3x text-muted"></i><p class="mt-3">لا توجد نتائج</p></div>';
+                return;
+            }
+
+            filtered.forEach((supply) => {
+                const item = document.createElement("div");
+                item.className = "supply-item";
+
+                let buttons = "";
+                if (supply.can_be_exchanged) {
+                    buttons = `<div class="action-buttons"><button class="action-btn exchange-btn" onclick="showExchangeDialog(${supply.id})"><i class="fas fa-sync-alt"></i> استبدال</button></div>`;
+                } else {
+                    buttons = `<div class="action-buttons">
+                        <button class="action-btn import-btn" onclick="showImportDialog(${supply.id})"><i class="fas fa-download"></i> استيراد</button>
+                        <button class="action-btn export-btn" onclick="showExportDialog(${supply.id})" ${supply.full_count === 0 ? "disabled" : ""}><i class="fas fa-upload"></i> تصدير</button>
+                    </div>`;
+                }
+
+                item.innerHTML = `
+                    <div class="supply-header">
+                        <div class="supply-badge ${supply.can_be_exchanged ? "exchangeable" : "non-exchangeable"}">${supply.can_be_exchanged ? "✓ قابل للاستبدال" : "📦 مواد استهلاكية"}</div>
+                        <div class="supply-title">${supply.name}</div>
+                        <div class="supply-type"><i class="fas fa-tag"></i> ${supply.type === "oxygen" ? "أكسجين" : supply.type}</div>
+                    </div>
+                    <div class="counts-container">
+                        <div class="count-box full"><div class="count-number" id="count-${supply.id}">${supply.full_count || 0}</div><div class="count-label">الكمية المتاحة</div></div>
+                        ${supply.can_be_exchanged ? `<div class="count-box empty"><div class="count-number" id="empty-${supply.id}">${supply.empty_count || 0}</div><div class="count-label">فارغة</div></div>` : ''}
+                    </div>
+                    ${buttons}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // تحديث المخزون محلياً وفي Supabase
+        async function updateStock(supplyId, type, quantity, notes) {
+            Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const supplyIndex = currentSupplies.findIndex((s) => s.id === supplyId);
+                if (supplyIndex === -1) throw new Error("العنصر غير موجود");
+                
+                const supply = currentSupplies[supplyIndex];
+                const newQuantity = type === "import" ? supply.full_count + quantity : supply.full_count - quantity;
+                
+                if (newQuantity < 0) throw new Error("الكمية غير كافية");
+                
+                // تحديث محلياً
+                supply.full_count = newQuantity;
+                currentSupplies[supplyIndex] = supply;
+                
+                // تسجيل الحركة
+                const movement = {
+                    id: Date.now(),
+                    supply_id: supplyId,
+                    movement_type: type,
+                    quantity: quantity,
+                    notes: notes,
+                    operator_name: "مدير النظام",
+                    movement_date: new Date().toISOString(),
+                    date: new Date().toISOString()
+                };
+                stockMovements.unshift(movement);
+                
+                // حفظ في localStorage
+                saveLocalData();
+                
+                // محاولة التحديث في Supabase
+                if (!useLocalStorage && supabaseClient) {
+                    try {
+                        await supabaseClient
+                            .from("supplies")
+                            .update({ full_count: newQuantity, updated_at: new Date() })
+                            .eq("id", supplyId);
+                        
+                        await supabaseClient.from("stock_movements").insert([movement]);
+                    } catch (e) {
+                        console.warn("Supabase update failed, data saved locally");
+                    }
+                }
+                
+                updateNumberAnimation(supplyId, newQuantity);
+                await updateStatistics();
+                
+                Swal.fire({
+                    icon: "success",
+                    title: type === "import" ? "تم الاستيراد بنجاح!" : "تم التصدير بنجاح!",
+                    html: `<div class="text-center"><i class="fas fa-${type === "import" ? "download" : "upload"}" style="font-size: 60px; color: ${type === "import" ? "#10b981" : "#f59e0b"};"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>الرصيد الجديد: <strong class="text-success">${newQuantity}</strong></p></div>`,
+                    timer: 2500, showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire("❌ خطأ", error.message || "فشلت العملية", "error");
+            }
+        }
+
+        async function performExchange(supplyId, quantity, customerName, customerPhone) {
+            Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const supplyIndex = currentSupplies.findIndex((s) => s.id === supplyId);
+                if (supplyIndex === -1) throw new Error("العنصر غير موجود");
+                
+                const supply = currentSupplies[supplyIndex];
+                const newFullCount = supply.full_count - quantity;
+                const newEmptyCount = supply.empty_count + quantity;
+                
+                if (newFullCount < 0) throw new Error("الكمية غير كافية");
+                
+                // تحديث محلياً
+                supply.full_count = newFullCount;
+                supply.empty_count = newEmptyCount;
+                currentSupplies[supplyIndex] = supply;
+                
+                // تسجيل عملية الاستبدال
+                const exchange = {
+                    id: Date.now(),
+                    supply_id: supplyId,
+                    customer_name: customerName,
+                    customer_phone: customerPhone,
+                    quantity: quantity,
+                    status: "completed",
+                    exchange_date: new Date().toISOString(),
+                    date: new Date().toISOString()
+                };
+                exchangeHistory.unshift(exchange);
+                
+                // حفظ في localStorage
+                saveLocalData();
+                
+                // محاولة التحديث في Supabase
+                if (!useLocalStorage && supabaseClient) {
+                    try {
+                        await supabaseClient
+                            .from("supplies")
+                            .update({ full_count: newFullCount, empty_count: newEmptyCount, updated_at: new Date() })
+                            .eq("id", supplyId);
+                        
+                        await supabaseClient.from("exchange_history").insert([exchange]);
+                    } catch (e) {
+                        console.warn("Supabase update failed, data saved locally");
+                    }
+                }
+                
+                updateNumberAnimation(supplyId, newFullCount);
+                const emptyElement = document.getElementById(`empty-${supplyId}`);
+                if (emptyElement) { 
+                    emptyElement.classList.add("number-animation"); 
+                    emptyElement.textContent = newEmptyCount; 
+                    setTimeout(() => emptyElement.classList.remove("number-animation"), 300); 
+                }
+                await updateStatistics();
+                
+                Swal.fire({
+                    icon: "success", title: "🎉 تم الاستبدال بنجاح!",
+                    html: `<div class="text-center"><i class="fas fa-check-circle" style="font-size:60px;color:#10b981;"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>👤 ${customerName}</p><p>📞 ${customerPhone}</p><hr><p>المتبقي: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p></div>`,
+                    timer: 3000, showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire("❌ خطأ", error.message || "فشلت عملية الاستبدال", "error");
+            }
+        }
+
+        window.showImportDialog = async function(supplyId) {
+            const supply = currentSupplies.find((s) => s.id === supplyId);
+            if (!supply) return;
+
+            const { value: result } = await Swal.fire({
+                title: `📥 استيراد ${supply.name}`,
+                html: `<div style="text-align: right;">
+                    <div class="mb-3"><label class="form-label fw-bold">الكمية المراد استيرادها</label><input id="quantity" type="number" class="form-control" min="1" value="1" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control" placeholder="مصدر الاستيراد..."></div>
+                    <div class="alert alert-success"><i class="fas fa-info-circle"></i> المتوفر حالياً: <strong>${supply.full_count}</strong> قطعة</div>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: "✅ تأكيد الاستيراد",
+                confirmButtonColor: "#10b981",
+                preConfirm: () => {
+                    const quantity = parseInt(document.getElementById("quantity").value);
+                    if (!quantity || quantity < 1) return "⚠️ الرجاء إدخال كمية صحيحة";
+                    return { quantity, notes: document.getElementById("notes")?.value || "استيراد" };
+                }
+            });
+            if (result) await updateStock(supplyId, "import", result.quantity, result.notes);
+        };
+
+        window.showExportDialog = async function(supplyId) {
+            const supply = currentSupplies.find((s) => s.id === supplyId);
+            if (!supply) return;
+            if (supply.full_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد كمية متاحة للتصدير", "warning");
+
+            const { value: result } = await Swal.fire({
+                title: `📤 تصدير ${supply.name}`,
+                html: `<div style="text-align: right;">
+                    <div class="mb-3"><label class="form-label fw-bold">الكمية المراد تصديرها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.full_count}" value="1" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control" placeholder="جهة التصدير..."></div>
+                    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> المتوفر حالياً: <strong>${supply.full_count}</strong> قطعة</div>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: "✅ تأكيد التصدير",
+                confirmButtonColor: "#f59e0b",
+                preConfirm: () => {
+                    const quantity = parseInt(document.getElementById("quantity").value);
+                    if (!quantity || quantity < 1 || quantity > supply.full_count) return `⚠️ الرجاء إدخال كمية صحيحة (1-${supply.full_count})`;
+                    return { quantity, notes: document.getElementById("notes")?.value || "تصدير" };
+                }
+            });
+            if (result) await updateStock(supplyId, "export", result.quantity, result.notes);
+        };
+
+        window.showExchangeDialog = async function(supplyId) {
+            const supply = currentSupplies.find((s) => s.id === supplyId);
+            if (!supply) return;
+            if (supply.full_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد أسطوانات ممتلئة متاحة للاستبدال", "warning");
+
+            const { value: result } = await Swal.fire({
+                title: `🔄 استبدال ${supply.name}`,
+                html: `<div style="text-align: right;">
+                    <div class="mb-3"><label class="form-label fw-bold">الكمية المراد استبدالها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.full_count}" value="1" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👤 اسم العميل</label><input id="customerName" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="customerPhone" class="form-control" required></div>
+                    <div class="alert alert-info"><i class="fas fa-info-circle"></i> المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: "✅ تأكيد الاستبدال",
+                confirmButtonColor: "#667eea",
+                preConfirm: () => {
+                    const quantity = parseInt(document.getElementById("quantity").value);
+                    const name = document.getElementById("customerName").value;
+                    const phone = document.getElementById("customerPhone").value;
+                    if (!quantity || quantity < 1 || quantity > supply.full_count) return `⚠️ كمية صحيحة (1-${supply.full_count})`;
+                    if (!name) return "⚠️ الرجاء إدخال اسم العميل";
+                    if (!phone || !/^[0-9]{10,11}$/.test(phone)) return "⚠️ رقم هاتف غير صحيح (10-11 رقم)";
+                    return { quantity, name, phone };
+                }
+            });
+            if (result) await performExchange(supplyId, result.quantity, result.name, result.phone);
+        };
+
+        function updateNumberAnimation(supplyId, newValue) {
+            const element = document.getElementById(`count-${supplyId}`);
+            if (element) {
+                element.classList.add("number-animation");
+                element.textContent = newValue;
+                setTimeout(() => element.classList.remove("number-animation"), 300);
+            }
+        }
+
+        window.scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+        document.getElementById("searchInput")?.addEventListener("input", () => renderSupplies());
+        
+        // بدء التطبيق
+        window.addEventListener("load", async () => {
+            await initSupabase();
+            setInterval(async () => {
+                if (!useLocalStorage && supabaseClient) {
+                    await loadFromSupabase();
+                } else {
+                    saveLocalData();
+                    renderSupplies();
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
