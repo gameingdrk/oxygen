@@ -299,29 +299,29 @@
                 <div>إجمالي المخزون</div>
                 <small class="text-muted">كل المستلزمات</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="showTodayOperations('exchange')" style="cursor:pointer;">
                 <div class="stat-icon" style="background: linear-gradient(135deg, #10b98120, #05966920);">
                     <i class="fas fa-exchange-alt" style="color: #10b981;"></i>
                 </div>
                 <div class="stat-value" id="totalExchanges">0</div>
                 <div>عمليات الاستبدال</div>
-                <small class="text-muted">اليوم</small>
+                <small class="text-muted">اليوم (اضغط للعرض)</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="showTodayOperations('import')" style="cursor:pointer;">
                 <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b20, #d9770620);">
                     <i class="fas fa-download" style="color: #f59e0b;"></i>
                 </div>
                 <div class="stat-value" id="totalImports">0</div>
                 <div>عمليات الاستيراد</div>
-                <small class="text-muted">اليوم</small>
+                <small class="text-muted">اليوم (اضغط للعرض)</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="showTodayOperations('export')" style="cursor:pointer;">
                 <div class="stat-icon" style="background: linear-gradient(135deg, #ef444420, #dc262620);">
                     <i class="fas fa-upload" style="color: #ef4444;"></i>
                 </div>
                 <div class="stat-value" id="totalExports">0</div>
                 <div>عمليات التصدير</div>
-                <small class="text-muted">اليوم</small>
+                <small class="text-muted">اليوم (اضغط للعرض)</small>
             </div>
         </div>
 
@@ -415,6 +415,7 @@
                     
                     if (!error) {
                         useLocalStorage = false;
+                        console.log("✅ Connected to Supabase successfully");
                         document.getElementById("dbStatus").innerHTML = "✅ متصل بقاعدة البيانات";
                         document.getElementById("dbStatus").style.background = "rgba(16, 185, 129, 0.9)";
                         await loadFromSupabase();
@@ -428,6 +429,7 @@
             }
             
             useLocalStorage = true;
+            console.log("⚠️ Using localStorage mode");
             document.getElementById("dbStatus").innerHTML = "💾 وضع التخزين المحلي";
             document.getElementById("dbStatus").style.background = "rgba(245, 158, 11, 0.9)";
             loadLocalData();
@@ -459,14 +461,19 @@
                     await initializeSupabaseTables();
                 }
                 
+                // مسح البيانات المحلية القديمة عند الاتصال بنجاح
+                exchangeHistory = [];
+                stockMovements = [];
+                
                 await loadHistoryFromSupabase();
-                updateStatistics();
+                await updateStatistics();
                 renderSupplies();
             } catch (error) {
                 console.error("Error loading from Supabase:", error);
+                console.log("Falling back to localStorage...");
                 useLocalStorage = true;
                 loadLocalData();
-                updateStatistics();
+                await updateStatistics();
                 renderSupplies();
             }
         }
@@ -498,14 +505,30 @@
             if (!supabaseClient) return;
             
             try {
+                const today = new Date().toISOString().split('T')[0];
+                const startOfDay = today + 'T00:00:00';
+                const endOfDay = today + 'T23:59:59';
+                
+                console.log("Loading history for today:", today);
+                
                 const { data: exchanges } = await supabaseClient
                     .from("exchange_history")
-                    .select("*");
+                    .select("*")
+                    .gte('exchange_date', startOfDay)
+                    .lte('exchange_date', endOfDay)
+                    .order('exchange_date', { ascending: false });
+                
+                console.log("Exchange history loaded:", exchanges);
                 if (exchanges) exchangeHistory = exchanges;
                 
                 const { data: movements } = await supabaseClient
                     .from("stock_movements")
-                    .select("*");
+                    .select("*")
+                    .gte('movement_date', startOfDay)
+                    .lte('movement_date', endOfDay)
+                    .order('movement_date', { ascending: false });
+                
+                console.log("Stock movements loaded:", movements);
                 if (movements) stockMovements = movements;
             } catch (error) {
                 console.log("History tables not found, using local");
@@ -525,27 +548,24 @@
             const totalFull = currentSupplies.reduce((sum, item) => sum + (item.full_count || 0), 0);
             document.getElementById("totalFull").textContent = totalFull;
             
-            const today = new Date().toLocaleDateString("ar-EG");
+            const today = new Date().toISOString().split('T')[0];
             
             const todayExchanges = exchangeHistory.filter(e => {
-                const exchangeDate = e.exchange_date ? new Date(e.exchange_date).toLocaleDateString("ar-EG") : 
-                                      (e.date ? new Date(e.date).toLocaleDateString("ar-EG") : null);
+                const exchangeDate = e.exchange_date ? new Date(e.exchange_date).toISOString().split('T')[0] : null;
                 return exchangeDate === today;
             });
             document.getElementById("totalExchanges").textContent = todayExchanges.length;
             
             const todayImports = stockMovements.filter(m => {
                 if (m.movement_type !== "import") return false;
-                const movementDate = m.movement_date ? new Date(m.movement_date).toLocaleDateString("ar-EG") :
-                                              (m.date ? new Date(m.date).toLocaleDateString("ar-EG") : null);
+                const movementDate = m.movement_date ? new Date(m.movement_date).toISOString().split('T')[0] : null;
                 return movementDate === today;
             });
             document.getElementById("totalImports").textContent = todayImports.length;
             
             const todayExports = stockMovements.filter(m => {
                 if (m.movement_type !== "export") return false;
-                const movementDate = m.movement_date ? new Date(m.movement_date).toLocaleDateString("ar-EG") :
-                                              (m.date ? new Date(m.date).toLocaleDateString("ar-EG") : null);
+                const movementDate = m.movement_date ? new Date(m.movement_date).toISOString().split('T')[0] : null;
                 return movementDate === today;
             });
             document.getElementById("totalExports").textContent = todayExports.length;
@@ -573,7 +593,10 @@
 
                 let buttons = "";
                 if (supply.can_be_exchanged) {
-                    buttons = `<div class="action-buttons"><button class="action-btn exchange-btn" onclick="showExchangeDialog(${supply.id})"><i class="fas fa-sync-alt"></i> استبدال</button></div>`;
+                    buttons = `<div class="action-buttons">
+                        <button class="action-btn exchange-btn" onclick="showExchangeDialog(${supply.id})"><i class="fas fa-sync-alt"></i> استبدال</button>
+                        <button class="action-btn" style="background:#8b5cf6;color:white;" onclick="showReturnDialog(${supply.id})"><i class="fas fa-undo"></i> إعادة</button>
+                    </div>`;
                 } else {
                     buttons = `<div class="action-buttons">
                         <button class="action-btn import-btn" onclick="showImportDialog(${supply.id})"><i class="fas fa-download"></i> استيراد</button>
@@ -622,8 +645,7 @@
                     quantity: quantity,
                     notes: notes,
                     operator_name: "مدير النظام",
-                    movement_date: new Date().toISOString(),
-                    date: new Date().toISOString()
+                    movement_date: new Date().toISOString()
                 };
                 stockMovements.unshift(movement);
                 
@@ -635,6 +657,7 @@
                 if (!useLocalStorage && supabaseClient) {
                     try {
                         console.log("Updating Supabase - supplyId:", supplyId, "newQuantity:", newQuantity, "type:", type);
+                        console.log("supabaseClient:", supabaseClient);
                         
                         const { error: updateError } = await supabaseClient
                             .from("supplies")
@@ -704,8 +727,7 @@
                     customer_phone: customerPhone,
                     quantity: quantity,
                     status: "completed",
-                    exchange_date: new Date().toISOString(),
-                    date: new Date().toISOString()
+                    exchange_date: new Date().toISOString()
                 };
                 exchangeHistory.unshift(exchange);
                 
@@ -714,6 +736,7 @@
                 
                 // محاولة التحديث في Supabase
                 let supabaseSaveFailed = false;
+                console.log("useLocalStorage:", useLocalStorage, "supabaseClient:", !!supabaseClient);
                 if (!useLocalStorage && supabaseClient) {
                     try {
                         console.log("Updating Supabase - supplyId:", supplyId, "newFullCount:", newFullCount, "newEmptyCount:", newEmptyCount);
@@ -742,8 +765,8 @@
                         
                         console.log("Supabase update successful");
                         
-                        // إعادة تحميل البيانات من Supabase للتأكد
-                        await loadFromSupabase();
+                        // إعادة تحميل السجلات من Supabase
+                        await loadHistoryFromSupabase();
                     } catch (e) {
                         console.error("Supabase update failed:", e);
                         supabaseSaveFailed = true;
@@ -757,6 +780,8 @@
                     emptyElement.textContent = newEmptyCount; 
                     setTimeout(() => emptyElement.classList.remove("number-animation"), 300); 
                 }
+                
+                // تحديث الإحصائيات حتى لو فشل Supabase
                 await updateStatistics();
                 
                 const warningMsg = supabaseSaveFailed ? '<div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> تم الحفظ محلياً (فشل الاتصال بقاعدة البيانات)</div>' : '';
@@ -847,6 +872,95 @@
             if (result) await performExchange(supplyId, result.quantity, result.name, result.phone);
         };
 
+        window.showReturnDialog = async function(supplyId) {
+            const supply = currentSupplies.find((s) => s.id === supplyId);
+            if (!supply) return;
+            if (supply.empty_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد أسطوانات فارغة لإعادة تعبئتها", "warning");
+
+            const { value: result } = await Swal.fire({
+                title: `🔁 إعادة تعبئة ${supply.name}`,
+                html: `<div style="text-align: right;">
+                    <div class="mb-3"><label class="form-label fw-bold">الكمية المراد إعادة تعبئتها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.empty_count}" value="1" required></div>
+                    <div class="alert alert-info"><i class="fas fa-info-circle"></i> المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: "✅ تأكيد",
+                confirmButtonColor: "#8b5cf6",
+                preConfirm: () => {
+                    const quantity = parseInt(document.getElementById("quantity").value);
+                    if (!quantity || quantity < 1 || quantity > supply.empty_count) return `⚠️ كمية صحيحة (1-${supply.empty_count})`;
+                    return { quantity };
+                }
+            });
+            if (result) await performReturn(supplyId, result.quantity);
+        };
+
+        async function performReturn(supplyId, quantity) {
+            Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const supplyIndex = currentSupplies.findIndex((s) => s.id === supplyId);
+                if (supplyIndex === -1) throw new Error("العنصر غير موجود");
+                
+                const supply = currentSupplies[supplyIndex];
+                const newFullCount = supply.full_count + quantity;
+                const newEmptyCount = supply.empty_count - quantity;
+                
+                if (newEmptyCount < 0) throw new Error("الكمية غير صحيحة");
+                
+                supply.full_count = newFullCount;
+                supply.empty_count = newEmptyCount;
+                currentSupplies[supplyIndex] = supply;
+                
+                saveLocalData();
+                
+                let supabaseSaveFailed = false;
+                if (!useLocalStorage && supabaseClient) {
+                    try {
+                        await supabaseClient
+                            .from("supplies")
+                            .update({ 
+                                full_count: newFullCount, 
+                                empty_count: newEmptyCount, 
+                                updated_at: new Date().toISOString() 
+                            })
+                            .eq("id", supplyId);
+                        
+                        await loadHistoryFromSupabase();
+                    } catch (e) {
+                        console.error("Supabase update failed:", e);
+                        supabaseSaveFailed = true;
+                    }
+                }
+                
+                const fullElement = document.getElementById(`count-${supplyId}`);
+                if (fullElement) { 
+                    fullElement.classList.add("number-animation"); 
+                    fullElement.textContent = newFullCount; 
+                    setTimeout(() => fullElement.classList.remove("number-animation"), 300); 
+                }
+                
+                const emptyElement = document.getElementById(`empty-${supplyId}`);
+                if (emptyElement) { 
+                    emptyElement.classList.add("number-animation"); 
+                    emptyElement.textContent = newEmptyCount; 
+                    setTimeout(() => emptyElement.classList.remove("number-animation"), 300); 
+                }
+                
+                await updateStatistics();
+                
+                Swal.fire({
+                    icon: "success",
+                    title: "✅ تم إعادة التعبئة بنجاح",
+                    html: `<div class="text-center"><i class="fas fa-undo" style="font-size:60px;color:#8b5cf6;"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية المعادة: <strong>${quantity}</strong></p><hr><p>المتوفر الآن: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p></div>`,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire("❌ خطأ", error.message || "فشلت العملية", "error");
+            }
+        };
+
         function updateNumberAnimation(supplyId, newValue) {
             const element = document.getElementById(`count-${supplyId}`);
             if (element) {
@@ -857,6 +971,152 @@
         }
 
         window.scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+        window.showTodayOperations = async function(type) {
+            const today = new Date().toISOString().split('T')[0];
+            let operations = [];
+            let icon, title, tableHeaders;
+
+            if (type === 'exchange') {
+                operations = exchangeHistory.filter(e => {
+                    const d = e.exchange_date;
+                    return d && d.split('T')[0] === today;
+                });
+            } else {
+                operations = stockMovements.filter(m => {
+                    const d = m.movement_date;
+                    return m.movement_type === type && d && d.split('T')[0] === today;
+                });
+            }
+
+            if (type === 'exchange') {
+                icon = '🔄'; title = 'عمليات الاستبدال اليومية';
+                tableHeaders = '<th>المستلزم</th><th>الكمية</th><th>العميل</th><th>الهاتف</th><th>الوقت</th><th>حذف</th>';
+            } else if (type === 'import') {
+                icon = '📥'; title = 'عمليات الاستيراد اليومية';
+                tableHeaders = '<th>المستلزم</th><th>الكمية</th><th>الملاحظات</th><th>الوقت</th><th>حذف</th>';
+            } else {
+                icon = '📤'; title = 'عمليات التصدير اليومية';
+                tableHeaders = '<th>المستلزم</th><th>الكمية</th><th>الملاحظات</th><th>الوقت</th><th>حذف</th>';
+            }
+
+            if (operations.length === 0) {
+                return Swal.fire(icon + ' ' + title, 'لا توجد عمليات اليوم', 'info');
+            }
+
+            let totalQuantity = 0;
+            let rows = operations.map(op => {
+                totalQuantity += op.quantity || 1;
+                const time = (op.exchange_date || op.movement_date || '').split('T')[1]?.substring(0, 5) || '';
+                const supplyName = currentSupplies.find(s => s.id === op.supply_id)?.name || 'غير معروف';
+                
+                if (type === 'exchange') {
+                    return `<tr>
+                        <td>${supplyName}</td>
+                        <td><span class="badge bg-success">${op.quantity}</span></td>
+                        <td>${op.customer_name || '-'}</td>
+                        <td>${op.customer_phone || '-'}</td>
+                        <td>${time}</td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteOperation(${op.id}, '${type}', ${op.quantity}, ${op.supply_id})"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+                } else {
+                    return `<tr>
+                        <td>${supplyName}</td>
+                        <td><span class="badge bg-warning">${op.quantity}</span></td>
+                        <td>${op.notes || '-'}</td>
+                        <td>${time}</td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteOperation(${op.id}, '${type}', ${op.quantity}, ${op.supply_id})"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+                }
+            }).join('');
+
+            Swal.fire({
+                title: icon + ' ' + title,
+                html: `<div class="text-center mb-3">
+                    <span class="badge bg-primary fs-6">إجمالي الكمية: <strong>${totalQuantity}</strong></span>
+                </div>
+                <div style="max-height:400px;overflow-y:auto;">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark"><tr>${tableHeaders}</tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`,
+                width: '600px',
+                confirmButtonText: 'إغلاق'
+            });
+        };
+
+        window.deleteOperation = async function(id, type, quantity, supplyId) {
+            const { isConfirmed } = await Swal.fire({
+                title: '🗑️ حذف العملية',
+                html: `هل أنت متأكد من حذف هذه العملية؟<br><strong>الكمية: ${quantity}</strong>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '✅ نعم، حذف',
+                cancelButtonText: '❌ إلغاء',
+                confirmButtonColor: '#ef4444'
+            });
+
+            if (!isConfirmed) return;
+
+            Swal.fire({ title: 'جاري الحذف...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const supply = currentSupplies.find(s => s.id === supplyId);
+                const supplyIndex = currentSupplies.findIndex(s => s.id === supplyId);
+
+                if (!useLocalStorage && supabaseClient) {
+                    if (type === 'exchange') {
+                        if (supply && supplyIndex !== -1) {
+                            currentSupplies[supplyIndex].full_count += quantity;
+                            currentSupplies[supplyIndex].empty_count -= quantity;
+                            await supabaseClient.from("supplies").update({
+                                full_count: currentSupplies[supplyIndex].full_count,
+                                empty_count: currentSupplies[supplyIndex].empty_count
+                            }).eq("id", supplyId);
+                        }
+                        await supabaseClient.from("exchange_history").delete().eq("id", id);
+                    } else {
+                        if (type === 'import' && supply && supplyIndex !== -1) {
+                            currentSupplies[supplyIndex].full_count -= quantity;
+                            await supabaseClient.from("supplies").update({
+                                full_count: currentSupplies[supplyIndex].full_count
+                            }).eq("id", supplyId);
+                        } else if (type === 'export' && supply && supplyIndex !== -1) {
+                            currentSupplies[supplyIndex].full_count += quantity;
+                            await supabaseClient.from("supplies").update({
+                                full_count: currentSupplies[supplyIndex].full_count
+                            }).eq("id", supplyId);
+                        }
+                        await supabaseClient.from("stock_movements").delete().eq("id", id);
+                    }
+                    await loadFromSupabase();
+                } else {
+                    if (type === 'exchange' && supply && supplyIndex !== -1) {
+                        currentSupplies[supplyIndex].full_count += quantity;
+                        currentSupplies[supplyIndex].empty_count -= quantity;
+                    } else if (type === 'import' && supply && supplyIndex !== -1) {
+                        currentSupplies[supplyIndex].full_count -= quantity;
+                    } else if (type === 'export' && supply && supplyIndex !== -1) {
+                        currentSupplies[supplyIndex].full_count += quantity;
+                    }
+                    
+                    if (type === 'exchange') {
+                        exchangeHistory = exchangeHistory.filter(e => e.id !== id);
+                    } else {
+                        stockMovements = stockMovements.filter(m => m.id !== id);
+                    }
+                    saveLocalData();
+                }
+
+                renderSupplies();
+                await updateStatistics();
+
+                Swal.fire({ icon: 'success', title: '✅ تم الحذف بنجاح', timer: 1500, showConfirmButton: false });
+            } catch (error) {
+                Swal.fire('❌ خطأ', error.message || 'فشل الحذف', 'error');
+            }
+        };
 
         document.getElementById("searchInput")?.addEventListener("input", () => renderSupplies());
         
