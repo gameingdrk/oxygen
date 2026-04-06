@@ -804,6 +804,8 @@
                 title: `📥 استيراد ${supply.name}`,
                 html: `<div style="text-align: right;">
                     <div class="mb-3"><label class="form-label fw-bold">الكمية المراد استيرادها</label><input id="quantity" type="number" class="form-control" min="1" value="1" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👤 اسم المستلم</label><input id="customerName" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="customerPhone" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control" placeholder="مصدر الاستيراد..."></div>
                     <div class="alert alert-success"><i class="fas fa-info-circle"></i> المتوفر حالياً: <strong>${supply.full_count}</strong> قطعة</div>
                 </div>`,
@@ -852,7 +854,7 @@
                 title: `🔄 استبدال ${supply.name}`,
                 html: `<div style="text-align: right;">
                     <div class="mb-3"><label class="form-label fw-bold">الكمية المراد استبدالها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.full_count}" value="1" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">👤 اسم العميل</label><input id="customerName" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👤 اسم المستلم</label><input id="customerName" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="customerPhone" class="form-control" required></div>
                     <div class="alert alert-info"><i class="fas fa-info-circle"></i> المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
                 </div>`,
@@ -881,6 +883,8 @@
                 title: `🔁 إعادة تعبئة ${supply.name}`,
                 html: `<div style="text-align: right;">
                     <div class="mb-3"><label class="form-label fw-bold">الكمية المراد إعادة تعبئتها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.empty_count}" value="1" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👤 اسم المستلم</label><input id="customerName" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="customerPhone" class="form-control" required></div>
                     <div class="alert alert-info"><i class="fas fa-info-circle"></i> المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
                 </div>`,
                 showCancelButton: true,
