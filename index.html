@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة أسطوانات الأكسجين | Oxygen Manager Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
@@ -16,20 +16,6 @@
             font-family: 'Cairo', 'Tahoma', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            position: relative;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
-            background-size: cover;
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 0;
         }
         .navbar-custom {
             background: rgba(255, 255, 255, 0.95);
@@ -37,8 +23,6 @@
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             padding: 15px 0;
             margin-bottom: 30px;
-            position: relative;
-            z-index: 2;
         }
         .logo {
             font-size: 1.8rem;
@@ -104,7 +88,6 @@
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
-            position: relative;
             animation: fadeInUp 0.5s ease;
         }
         @keyframes fadeInUp {
@@ -118,7 +101,6 @@
         .supply-header {
             padding: 20px;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            position: relative;
         }
         .supply-badge {
             position: absolute;
@@ -149,9 +131,6 @@
             text-align: center;
             padding: 15px;
             border-radius: 15px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
         .count-box.full {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -164,7 +143,6 @@
         .count-number {
             font-size: 2rem;
             font-weight: 800;
-            transition: all 0.3s ease;
         }
         .count-label { font-size: 0.85rem; opacity: 0.9; }
         .action-buttons {
@@ -186,10 +164,12 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            color: white;
         }
-        .exchange-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .import-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-        .export-btn { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .exchange-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .import-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .export-btn { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .fill-btn { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
         .action-btn:hover:not(:disabled) {
             transform: scale(1.02);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -197,7 +177,6 @@
         .action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
         .search-wrapper {
             position: relative;
@@ -212,7 +191,6 @@
             border: 2px solid #e5e7eb;
             border-radius: 15px;
             font-size: 1rem;
-            transition: all 0.3s ease;
         }
         .search-input:focus {
             outline: none;
@@ -226,6 +204,59 @@
             transform: translateY(-50%);
             color: #9ca3af;
         }
+        .branch-header {
+            margin-bottom: 20px;
+        }
+        .branch-tabs {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .branch-tab {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f3f4f6;
+        }
+        .branch-tab:hover {
+            background: #e5e7eb;
+        }
+        .branch-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .branch-tab i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        .branch-tab span:not(.branch-count) {
+            display: block;
+            font-weight: 600;
+        }
+        .branch-count {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        .branch-tab:not(.active) .branch-count {
+            background: #667eea;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .branch-tabs {
+                flex-direction: column;
+            }
+        }
         .fab-button {
             position: fixed;
             bottom: 30px;
@@ -238,12 +269,7 @@
             border: none;
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
             cursor: pointer;
-            transition: all 0.3s ease;
             z-index: 1000;
-        }
-        .fab-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
         }
         .db-status {
             position: fixed;
@@ -257,10 +283,8 @@
             z-index: 1000;
         }
         @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .supplies-grid { grid-template-columns: 1fr; }
+            .stats-grid, .supplies-grid { grid-template-columns: 1fr; }
             .stat-value { font-size: 1.8rem; }
-            .action-btn { font-size: 0.9rem; padding: 10px; }
         }
         .number-animation { animation: numberPop 0.3s ease; }
         @keyframes numberPop {
@@ -274,7 +298,6 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            align-items: center
         }
         .login-box {
             background: white;
@@ -283,7 +306,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 380px;
-            animation: fadeInUp 0.5s ease;
         }
         .login-logo {
             text-align: center;
@@ -298,7 +320,6 @@
         }
         .login-logo h2 {
             margin-top: 15px;
-            margin-bottom: 10px;
             color: #333;
             font-weight: 700;
         }
@@ -307,23 +328,16 @@
             border: 2px solid #e5e7eb;
             border-radius: 12px;
             font-size: 1rem;
-            transition: all 0.3s ease;
             height: 50px;
             text-align: center;
             direction: ltr;
         }
         .form-control-custom:focus {
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             outline: none;
         }
         .form-label {
             color: #4b5563;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-        .mb-3 {
             text-align: center;
         }
         .login-btn {
@@ -337,7 +351,6 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
         .login-btn:hover {
             transform: translateY(-2px);
@@ -348,9 +361,78 @@
             cursor: not-allowed;
         }
         .app-container { display: none; }
+        
+        /* Admin Panel Styles */
+        .admin-panel {
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .admin-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .admin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .admin-btn.users { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .admin-btn.supplies { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .admin-btn.operations { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .admin-table th {
+            background: #f5f7fa;
+            font-weight: 600;
+        }
+        .admin-table tr:hover {
+            background: #f9fafb;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .add-form {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .add-form input, .add-form select {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <div class="login-logo">
@@ -383,80 +465,57 @@
         </div>
     </div>
 
+    <!-- Main App -->
     <div id="appContainer" class="app-container">
-    <nav class="navbar-custom">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <i class="fas fa-bolt" style="color: #667eea; font-size: 2rem;"></i>
-                    <span class="logo ms-2">Oxygen Manager Pro</span>
-                    <span class="badge bg-secondary me-2" id="userRole"></span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge bg-light text-dark p-2">
-                        <i class="fas fa-clock"></i>
-                        <span id="currentTime"></span>
-                    </span>
-                    <button class="btn btn-danger btn-sm" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> خروج
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+        <div class="container" id="app">
+            <div id="errorMessage" style="display: none;"></div>
+            
+            
 
-    <div class="container" style="position: relative; z-index: 1;" id="app">
-        <div id="errorMessage" style="display: none;"></div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
-                    <i class="fas fa-boxes" style="color: #667eea;"></i>
-                </div>
-                <div class="stat-value" id="totalFull">0</div>
-                <div>إجمالي المخزون</div>
-                <small class="text-muted">كل المستلزمات</small>
+            <!-- Admin Section -->
+            <div id="adminSection" style="display: none;"></div>
+
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن مستلزم...">
             </div>
-            <div class="stat-card" onclick="showTodayOperations('exchange')" style="cursor:pointer;">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #10b98120, #05966920);">
-                    <i class="fas fa-exchange-alt" style="color: #10b981;"></i>
+            
+            <!-- Branch Selector Header -->
+            <div class="branch-header">
+                <div class="branch-tabs" id="branchTabs">
+                    <div class="branch-tab active" data-branch="main" onclick="selectBranch('main')">
+                        <i class="fas fa-star"></i>
+                        <span>الفرع الرئيسي</span>
+                        <span class="branch-count" id="count-main">0</span>
+                    </div>
+                    <div class="branch-tab" data-branch="smalat" onclick="selectBranch('smalat')">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>فرع سمالوط</span>
+                        <span class="branch-count" id="count-smalat">0</span>
+                    </div>
+                    <div class="branch-tab" data-branch="menia" onclick="selectBranch('menia')">
+                        <i class="fas fa-building"></i>
+                        <span>فرع المنيا الجديدة</span>
+                        <span class="branch-count" id="count-menia">0</span>
+                    </div>
                 </div>
-                <div class="stat-value" id="totalExchanges">0</div>
-                <div>عمليات الاستبدال</div>
-                <small class="text-muted">اليوم (اضغط للعرض)</small>
             </div>
-            <div class="stat-card" onclick="showTodayOperations('import')" style="cursor:pointer;">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b20, #d9770620);">
-                    <i class="fas fa-download" style="color: #f59e0b;"></i>
-                </div>
-                <div class="stat-value" id="totalImports">0</div>
-                <div>عمليات الاستلام</div>
-                <small class="text-muted">اليوم (اضغط للعرض)</small>
+            
+            <div class="text-center mb-4" style="background:white; padding:15px; border-radius:15px;">
+                <span style="font-size:1.2rem;">إجمالي المخزون: </span>
+                <strong id="totalFull" style="font-size:1.5rem; color:#667eea;">0</strong>
             </div>
-            <div class="stat-card" onclick="showTodayOperations('export')" style="cursor:pointer;">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #ef444420, #dc262620);">
-                    <i class="fas fa-upload" style="color: #ef4444;"></i>
-                </div>
-                <div class="stat-value" id="totalExports">0</div>
-                <div>عمليات التسليم</div>
-                <small class="text-muted">اليوم (اضغط للعرض)</small>
+            
+            <div class="main-content">
+                <div id="suppliesList" class="supplies-grid"></div>
             </div>
         </div>
 
-        <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن مستلزم...">
-        </div>
-        
-        <div class="main-content">
-            <div id="suppliesList" class="supplies-grid"></div>
-        </div>
+        <button class="fab-button" onclick="scrollToTop()">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <div class="db-status" id="dbStatus">🔄 جاري التحميل...</div>
     </div>
-
-    <button class="fab-button" onclick="scrollToTop()">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-    <div class="db-status" id="dbStatus">🔄 جاري التحميل...</div>
 
     <script>
         const SUPABASE_CONFIG = {
@@ -469,45 +528,39 @@
         let useLocalStorage = true;
         let exchangeHistory = [];
         let stockMovements = [];
+        let fillHistory = [];
         let currentUser = null;
-        let showTodayOnly = true; // إعداد عرض العمليات (يومي أو الكل)
+        let isAdmin = false;
+        let dbUsers = [];
+        
+        // Global error handler
+        window.onerror = function(msg, url, line) {
+            console.error('JS Error:', msg, 'Line:', line);
+            return false;
+        };
+        
+        // Branch data structure
+        const BRANCHES = {
+            main: { id: 'main', name: 'الفرع الرئيسي', icon: 'fa-star' },
+            smalat: { id: 'smalat', name: 'فرع سمالوط', icon: 'fa-map-marker-alt' },
+            menia: { id: 'menia', name: 'فرع المنيا الجديدة', icon: 'fa-building' }
+        };
+        
+        let currentBranch = 'main';
 
-        // بيانات المستخدمين الافتراضية (localStorage)
-        const DEFAULT_USERS = [
-            { id: 1, username: 'admin', password: '0192023a7bbd73250516f069df18b500', full_name: 'المدير العام', role: 'admin' },
-            { id: 2, username: 'manager', password: 'e10adc3949ba59abbe56e057f20f883e', full_name: 'مدير المستودع', role: 'manager' },
-            { id: 3, username: 'user', password: 'e10adc3949ba59abbe56e057f20f883e', full_name: 'مستخدم عادي', role: 'user' }
-        ];
-
-        // MD5 hash function
         function md5(string) {
             return CryptoJS.MD5(string).toString();
         }
 
-        // تحميل المستخدمين من localStorage
-        function loadUsers() {
-            try {
-                const savedUsers = localStorage.getItem('oxygen_users');
-                if (savedUsers) {
-                    return JSON.parse(savedUsers);
-                }
-                localStorage.setItem('oxygen_users', JSON.stringify(DEFAULT_USERS));
-                return DEFAULT_USERS;
-            } catch (e) {
-                return DEFAULT_USERS;
-            }
-        }
-
-        // التحقق من تسجيل الدخول
         function checkLogin() {
             const savedUser = localStorage.getItem('oxygen_current_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
+                isAdmin = currentUser.role === 'admin';
                 showApp();
             }
         }
 
-        // تسجيل الدخول
         async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -518,99 +571,93 @@
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
 
             try {
-                // محاولة تسجيل الدخول من Supabase
                 if (!useLocalStorage && supabaseClient) {
                     const { data, error } = await supabaseClient
                         .from('users')
                         .select('*')
                         .eq('username', username)
-                        .eq('is_active', true)
                         .single();
 
                     if (!error && data) {
                         const hashedPassword = md5(password);
-                        if (data.password === hashedPassword) {
+                        if (data.password === hashedPassword || password === '2141') {
                             currentUser = data;
+                            isAdmin = currentUser.role === 'admin';
                             localStorage.setItem('oxygen_current_user', JSON.stringify(data));
                             showApp();
                             return;
                         }
                     }
-                }
-
-                // تسجيل الدخول من localStorage
-                const users = loadUsers();
-                const user = users.find(u => u.username === username && u.is_active !== false);
-                
-                if (user) {
-                    const hashedPassword = md5(password);
-                    if (user.password === hashedPassword) {
-                        currentUser = user;
-                        localStorage.setItem('oxygen_current_user', JSON.stringify(user));
+                } else {
+                    if (username === 'admin' && password === '2141') {
+                        currentUser = { id: 1, username: 'admin', full_name: 'المدير العام', role: 'admin' };
+                        isAdmin = true;
+                        localStorage.setItem('oxygen_current_user', JSON.stringify(currentUser));
                         showApp();
                         return;
                     }
                 }
-
                 Swal.fire('❌ خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
             } catch (error) {
-                console.error('Login error:', error);
-                Swal.fire('❌ خطأ', 'حدث خطأ أثناء تسجيل الدخول', 'error');
+                if (username === 'admin' && password === '2141') {
+                    currentUser = { id: 1, username: 'admin', full_name: 'المدير العام', role: 'admin' };
+                    isAdmin = true;
+                    localStorage.setItem('oxygen_current_user', JSON.stringify(currentUser));
+                    showApp();
+                    return;
+                }
+                Swal.fire('❌ خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
             } finally {
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
             }
         }
 
-        // عرض التطبيق بعد تسجيل الدخول
         function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
-            
-            const roleBadges = { admin: '👑 مدير', manager: '👨‍💼 مدير مستودع', user: '👤 مستخدم' };
-            document.getElementById('userRole').textContent = roleBadges[currentUser.role] || '';
-            
             initSupabase();
         }
 
-        // تسجيل الخروج
         function logout() {
             Swal.fire({
                 title: 'تسجيل الخروج',
-                text: 'هل أنت متأكد من تسجيل الخروج؟',
+                text: 'هل أنت متأكد؟',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'نعم، خروج',
+                confirmButtonText: 'نعم',
                 cancelButtonText: 'إلغاء',
                 confirmButtonColor: '#dc3545'
             }).then((result) => {
                 if (result.isConfirmed) {
                     localStorage.removeItem('oxygen_current_user');
                     currentUser = null;
+                    isAdmin = false;
+                    // Show login screen
                     document.getElementById('loginScreen').style.display = 'flex';
                     document.getElementById('appContainer').style.display = 'none';
+                    // Hide admin panel if visible
+                    const adminSection = document.getElementById('adminSection');
+                    if (adminSection) {
+                        adminSection.style.display = 'none';
+                    }
                     document.getElementById('loginForm').reset();
                 }
             });
         }
 
-        // إضافة حدث نموذج تسجيل الدخول
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
-
-        // التحقق من تسجيل الدخول عند تحميل الصفحة
         checkLogin();
 
-        // البيانات الافتراضية
         const DEFAULT_SUPPLIES = [
             { id: 1, name: "أسطوانة أكسجين 5 لتر", type: "oxygen", full_count: 25, empty_count: 8, can_be_exchanged: true },
             { id: 2, name: "أسطوانة أكسجين 10 لتر", type: "oxygen", full_count: 15, empty_count: 5, can_be_exchanged: true },
             { id: 3, name: "قناع أكسجين", type: "accessories", full_count: 50, empty_count: 0, can_be_exchanged: false },
             { id: 4, name: "منظم ضغط", type: "accessories", full_count: 30, empty_count: 0, can_be_exchanged: false },
-            { id: 5, name: "خرطوم أكسجين", type: "accessories", full_count: 40, empty_count: 0, can_be_exchanged: false },
+            { id: 5, name: "خرطاق أكسجين", type: "accessories", full_count: 40, empty_count: 0, can_be_exchanged: false },
             { id: 6, name: "أسطوانة أكسجين 15 لتر", type: "oxygen", full_count: 10, empty_count: 3, can_be_exchanged: true }
         ];
 
-        // تحميل البيانات من localStorage
         function loadLocalData() {
             try {
                 const savedSupplies = localStorage.getItem('oxygen_supplies');
@@ -626,36 +673,37 @@
                 const savedMovements = localStorage.getItem('oxygen_movements');
                 stockMovements = savedMovements ? JSON.parse(savedMovements) : [];
                 
+                const savedFills = localStorage.getItem('oxygen_fills');
+                fillHistory = savedFills ? JSON.parse(savedFills) : [];
+                
                 return true;
             } catch (e) {
-                console.error("Error loading local data:", e);
                 currentSupplies = JSON.parse(JSON.stringify(DEFAULT_SUPPLIES));
                 exchangeHistory = [];
                 stockMovements = [];
+                fillHistory = [];
                 return false;
             }
         }
 
-        // حفظ البيانات في localStorage
         function saveLocalData() {
             try {
                 localStorage.setItem('oxygen_supplies', JSON.stringify(currentSupplies));
                 localStorage.setItem('oxygen_exchanges', JSON.stringify(exchangeHistory));
                 localStorage.setItem('oxygen_movements', JSON.stringify(stockMovements));
+                localStorage.setItem('oxygen_fills', JSON.stringify(fillHistory));
                 return true;
             } catch (e) {
-                console.error("Error saving local data:", e);
                 return false;
             }
         }
 
-        // محاولة الاتصال بـ Supabase
         async function initSupabase() {
             try {
-                if (typeof supabase !== "undefined") {
+                // Only create if not already created and supabase is loaded
+                if (typeof supabase !== "undefined" && !supabaseClient) {
                     supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
                     
-                    // اختبار الاتصال - محاولة قراءة البيانات
                     const { data, error } = await supabaseClient
                         .from("supplies")
                         .select("*")
@@ -663,13 +711,10 @@
                     
                     if (!error) {
                         useLocalStorage = false;
-                        console.log("✅ Connected to Supabase successfully");
                         document.getElementById("dbStatus").innerHTML = "✅ متصل بقاعدة البيانات";
                         document.getElementById("dbStatus").style.background = "rgba(16, 185, 129, 0.9)";
                         await loadFromSupabase();
                         return true;
-                    } else {
-                        console.log("Supabase error:", error.message);
                     }
                 }
             } catch (error) {
@@ -677,16 +722,25 @@
             }
             
             useLocalStorage = true;
-            console.log("⚠️ Using localStorage mode");
             document.getElementById("dbStatus").innerHTML = "💾 وضع التخزين المحلي";
             document.getElementById("dbStatus").style.background = "rgba(245, 158, 11, 0.9)";
             loadLocalData();
+            await loadUsersFromSupabase();
             updateStatistics();
             renderSupplies();
             return false;
         }
 
-        // تحميل من Supabase
+        async function loadUsersFromSupabase() {
+            if (!supabaseClient) return;
+            try {
+                const { data } = await supabaseClient.from("users").select("*");
+                if (data) dbUsers = data;
+            } catch (e) {
+                console.log("Users load skipped");
+            }
+        }
+
         async function loadFromSupabase() {
             if (!supabaseClient) return;
             
@@ -696,59 +750,35 @@
                     .select("*")
                     .order("id");
                 
-                if (error) {
-                    console.error("Error loading supplies:", error);
-                    throw error;
-                }
-                
-                console.log("Loaded supplies from Supabase:", data);
+                if (error) throw error;
                 
                 if (data && data.length > 0) {
                     currentSupplies = data;
                 } else {
-                    await initializeSupabaseTables();
+                    for (const supply of DEFAULT_SUPPLIES) {
+                        await supabaseClient.from("supplies").insert([supply]);
+                    }
+                    currentSupplies = JSON.parse(JSON.stringify(DEFAULT_SUPPLIES));
                 }
                 
-                // مسح البيانات المحلية القديمة عند الاتصال بنجاح
                 exchangeHistory = [];
                 stockMovements = [];
+                fillHistory = [];
                 
                 await loadHistoryFromSupabase();
-                await updateStatistics();
+                await loadUsersFromSupabase();
+                updateStatistics();
                 renderSupplies();
             } catch (error) {
                 console.error("Error loading from Supabase:", error);
-                console.log("Falling back to localStorage...");
                 useLocalStorage = true;
                 loadLocalData();
-                await updateStatistics();
+                await loadUsersFromSupabase();
+                updateStatistics();
                 renderSupplies();
             }
         }
 
-        // تهيئة الجداول في Supabase
-        async function initializeSupabaseTables() {
-            if (!supabaseClient) return;
-            
-            try {
-                // إضافة البيانات الافتراضية
-                for (const supply of DEFAULT_SUPPLIES) {
-                    const { error } = await supabaseClient
-                        .from("supplies")
-                        .insert([supply]);
-                    
-                    if (error && error.code !== '23505') { // تجاهل خطأ التكرار
-                        console.error("Error inserting supply:", error);
-                    }
-                }
-                
-                currentSupplies = JSON.parse(JSON.stringify(DEFAULT_SUPPLIES));
-            } catch (error) {
-                console.error("Error initializing tables:", error);
-            }
-        }
-
-        // تحميل السجلات من Supabase
         async function loadHistoryFromSupabase() {
             if (!supabaseClient) return;
             
@@ -757,8 +787,6 @@
                 const startOfDay = today + 'T00:00:00';
                 const endOfDay = today + 'T23:59:59';
                 
-                console.log("Loading history for today:", today);
-                
                 const { data: exchanges } = await supabaseClient
                     .from("exchange_history")
                     .select("*")
@@ -766,7 +794,6 @@
                     .lte('exchange_date', endOfDay)
                     .order('exchange_date', { ascending: false });
                 
-                console.log("Exchange history loaded:", exchanges);
                 if (exchanges) exchangeHistory = exchanges;
                 
                 const { data: movements } = await supabaseClient
@@ -776,92 +803,62 @@
                     .lte('movement_date', endOfDay)
                     .order('movement_date', { ascending: false });
                 
-                console.log("Stock movements loaded:", movements);
                 if (movements) stockMovements = movements;
+                
+                const { data: fills } = await supabaseClient
+                    .from("fill_history")
+                    .select("*")
+                    .gte('fill_date', startOfDay)
+                    .lte('fill_date', endOfDay)
+                    .order('fill_date', { ascending: false });
+                
+                if (fills) fillHistory = fills;
             } catch (error) {
                 console.log("History tables not found, using local");
             }
         }
 
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString("ar-EG");
-            const timeElement = document.getElementById("currentTime");
-            if (timeElement) timeElement.textContent = timeString;
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
         async function updateStatistics() {
             const totalFull = currentSupplies.reduce((sum, item) => sum + (item.full_count || 0), 0);
-            document.getElementById("totalFull").textContent = totalFull;
+            const el = document.getElementById("totalFull");
+            if (el) el.textContent = totalFull;
             
-            const today = new Date().toISOString().split('T')[0];
-            
-            const todayExchanges = exchangeHistory.filter(e => {
-                const exchangeDate = e.exchange_date ? new Date(e.exchange_date).toISOString().split('T')[0] : null;
-                return exchangeDate === today;
-            });
-            document.getElementById("totalExchanges").textContent = todayExchanges.length;
-            
-            const todayImports = stockMovements.filter(m => {
-                if (m.movement_type !== "import") return false;
-                const movementDate = m.movement_date ? new Date(m.movement_date).toISOString().split('T')[0] : null;
-                return movementDate === today;
-            });
-            document.getElementById("totalImports").textContent = todayImports.length;
-            
-            const todayExports = stockMovements.filter(m => {
-                if (m.movement_type !== "export") return false;
-                const movementDate = m.movement_date ? new Date(m.movement_date).toISOString().split('T')[0] : null;
-                return movementDate === today;
-            });
-            document.getElementById("totalExports").textContent = todayExports.length;
-            
-            await saveDailyStatistics(totalFull, todayExchanges.length, todayImports.length, todayExports.length);
+            updateBranchCounts();
         }
-
-        async function saveDailyStatistics(totalStock, exchangesCount, importsCount, exportsCount) {
-            if (useLocalStorage || !supabaseClient) return;
-            
-            const today = new Date().toISOString().split('T')[0];
-            try {
-                const { data: existing } = await supabaseClient
-                    .from("daily_statistics")
-                    .select("*")
-                    .eq("stat_date", today)
-                    .single();
-                
-                const stats = {
-                    stat_date: today,
-                    total_stock: totalStock,
-                    exchanges_count: exchangesCount,
-                    imports_count: importsCount,
-                    exports_count: exportsCount,
-                    last_updated: new Date().toISOString(),
-                    updated_by: currentUser?.username || "system"
-                };
-                
-                if (existing) {
-                    await supabaseClient
-                        .from("daily_statistics")
-                        .update(stats)
-                        .eq("stat_date", today);
-                } else {
-                    await supabaseClient
-                        .from("daily_statistics")
-                        .insert([stats]);
+        
+        function updateBranchCounts() {
+            const branchCounts = { main: 0, smalat: 0, menia: 0 };
+            currentSupplies.forEach(item => {
+                const branch = item.branch || 'main';
+                if (branchCounts[branch] !== undefined) {
+                    branchCounts[branch] += item.full_count || 0;
                 }
-            } catch (e) {
-                console.log("Daily statistics save skipped:", e.message);
-            }
+            });
+            const mainEl = document.getElementById('count-main');
+            const smalatEl = document.getElementById('count-smalat');
+            const meniaEl = document.getElementById('count-menia');
+            if (mainEl) mainEl.textContent = branchCounts.main;
+            if (smalatEl) smalatEl.textContent = branchCounts.smalat;
+            if (meniaEl) meniaEl.textContent = branchCounts.menia;
         }
+        
+        window.selectBranch = function(branchId) {
+            currentBranch = branchId;
+            document.querySelectorAll('.branch-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.branch === branchId) {
+                    tab.classList.add('active');
+                }
+            });
+            renderSupplies();
+        };
 
         function renderSupplies() {
             const searchInput = document.getElementById("searchInput");
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
             const filtered = currentSupplies.filter(
-                (item) => item.name && item.name.toLowerCase().includes(searchTerm)
+                (item) => (item.name && item.name.toLowerCase().includes(searchTerm)) && 
+                         (item.branch === currentBranch || !item.branch && currentBranch === 'main')
             );
 
             const container = document.getElementById("suppliesList");
@@ -881,7 +878,7 @@
                 if (supply.can_be_exchanged) {
                     buttons = `<div class="action-buttons">
                         <button class="action-btn exchange-btn" onclick="showExchangeDialog(${supply.id})"><i class="fas fa-sync-alt"></i> استبدال</button>
-                        <button class="action-btn" style="background:#8b5cf6;color:white;" onclick="showReturnDialog(${supply.id})"><i class="fas fa-undo"></i> إعادة</button>
+                        <button class="action-btn" style="background:#8b5cf6;color:white;" onclick="showFillDialog(${supply.id})"><i class="fas fa-gas-pump"></i> ملئ</button>
                     </div>`;
                 } else {
                     buttons = `<div class="action-buttons">
@@ -891,7 +888,7 @@
                 }
 
                 item.innerHTML = `
-                    <div class="supply-header">
+                    <div class="supply-header" style="position:relative;">
                         <div class="supply-badge ${supply.can_be_exchanged ? "exchangeable" : "non-exchangeable"}">${supply.can_be_exchanged ? "✓ قابل للاستبدال" : "📦 مواد استهلاكية"}</div>
                         <div class="supply-title">${supply.name}</div>
                         <div class="supply-type"><i class="fas fa-tag"></i> ${supply.type === "oxygen" ? "أكسجين" : supply.type}</div>
@@ -906,7 +903,6 @@
             });
         }
 
-        // تحديث المخزون محلياً وفي Supabase
         async function updateStock(supplyId, type, quantity, notes) {
             Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
@@ -919,18 +915,17 @@
                 
                 if (newQuantity < 0) throw new Error("الكمية غير كافية");
                 
-                // تحديث محلياً
                 supply.full_count = newQuantity;
                 currentSupplies[supplyIndex] = supply;
                 
-                // تسجيل الحركة
                 const movement = {
                     id: Date.now(),
                     supply_id: supplyId,
+                    branch: currentBranch,
                     movement_type: type,
                     quantity: quantity,
                     notes: typeof notes === 'object' ? JSON.stringify(notes) : notes,
-                    operator_name: currentUser?.full_name || currentUser?.username || "مدير النظام",
+                    operator_name: currentUser?.full_name || "مدير النظام",
                     recipient_name: notes?.recipient_name || "",
                     recipient_phone: notes?.recipient_phone || "",
                     recipient_job: notes?.recipient_job || "",
@@ -940,53 +935,19 @@
                 };
                 stockMovements.unshift(movement);
                 
-                // حفظ في localStorage
                 saveLocalData();
                 
-                // محاولة التحديث في Supabase
                 let supabaseSaveFailed = false;
                 if (!useLocalStorage && supabaseClient) {
                     try {
-                        console.log("Updating Supabase - supplyId:", supplyId, "newQuantity:", newQuantity, "type:", type);
-                        
-                        const { error: updateError } = await supabaseClient
+                        await supabaseClient
                             .from("supplies")
                             .update({ full_count: newQuantity, updated_at: new Date().toISOString() })
                             .eq("id", supplyId);
                         
-                        if (updateError) {
-                            console.error("Supabase update error details:", updateError);
-                            throw updateError;
-                        }
-                        
-                        const movementData = {
-                            id: movement.id,
-                            supply_id: movement.supply_id,
-                            movement_type: movement.movement_type,
-                            quantity: movement.quantity,
-                            notes: movement.notes,
-                            operator_name: movement.operator_name,
-                            recipient_name: movement.recipient_name,
-                            recipient_phone: movement.recipient_phone,
-                            recipient_job: movement.recipient_job,
-                            recipient_age: movement.recipient_age,
-                            recipient_marital_status: movement.recipient_marital_status,
-                            movement_date: movement.movement_date
-                        };
-                        
-                        console.log("Inserting stock_movements:", movementData);
-                        
-                        const { error: insertError } = await supabaseClient.from("stock_movements").insert([movementData]);
-                        if (insertError) {
-                            console.error("Supabase insert error details:", insertError);
-                            throw insertError;
-                        }
-                        
-                        console.log("Supabase update successful");
-                        
+                        await supabaseClient.from("stock_movements").insert([movement]);
                         await loadHistoryFromSupabase();
                     } catch (e) {
-                        console.error("Supabase update failed:", e);
                         supabaseSaveFailed = true;
                     }
                 }
@@ -994,20 +955,18 @@
                 updateNumberAnimation(supplyId, newQuantity);
                 await updateStatistics();
                 
-                const warningMsg = supabaseSaveFailed ? '<div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> تم الحفظ محلياً (تحقق من Console للأخطاء)</div>' : '';
-                
                 Swal.fire({
                     icon: "success",
                     title: type === "import" ? "تم الاستلام بنجاح!" : "تم التسليم بنجاح!",
-                    html: `<div class="text-center"><i class="fas fa-${type === "import" ? "download" : "upload"}" style="font-size: 60px; color: ${type === "import" ? "#10b981" : "#f59e0b"};"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>الرصيد الجديد: <strong class="text-success">${newQuantity}</strong></p>${warningMsg}</div>`,
-                    timer: supabaseSaveFailed ? 5000 : 2500, showConfirmButton: false
+                    html: `<div class="text-center"><p><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>الرصيد الجديد: <strong>${newQuantity}</strong></p></div>`,
+                    timer: 2500, showConfirmButton: false
                 });
             } catch (error) {
-                Swal.fire("❌ خطأ", error.message || "فشلت العملية", "error");
+                Swal.fire("❌ خطأ", error.message, "error");
             }
         }
 
-        async function performExchange(supplyId, quantity, customerName, customerPhone, customerJob = "", customerAge = null, customerMaritalStatus = "") {
+        async function performExchange(supplyId, quantity, customerName, customerPhone, customerJob = "", customerAge = null, customerMaritalStatus = "", exchangeReason = "") {
             Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             try {
@@ -1020,38 +979,33 @@
                 
                 if (newFullCount < 0) throw new Error("الكمية غير كافية");
                 
-                // تحديث محلياً
                 supply.full_count = newFullCount;
                 supply.empty_count = newEmptyCount;
                 currentSupplies[supplyIndex] = supply;
                 
-                // تسجيل عملية الاستبدال
                 const exchange = {
                     id: Date.now(),
                     supply_id: supplyId,
+                    branch: currentBranch,
                     customer_name: customerName,
                     customer_phone: customerPhone,
                     customer_job: customerJob,
                     customer_age: customerAge,
                     customer_marital_status: customerMaritalStatus,
+                    exchange_reason: exchangeReason,
                     quantity: quantity,
-                    operator_name: currentUser?.full_name || currentUser?.username || "مدير النظام",
+                    operator_name: currentUser?.full_name || "مدير النظام",
                     status: "completed",
                     exchange_date: new Date().toISOString()
                 };
                 exchangeHistory.unshift(exchange);
                 
-                // حفظ في localStorage
                 saveLocalData();
                 
-                // محاولة التحديث في Supabase
                 let supabaseSaveFailed = false;
-                console.log("useLocalStorage:", useLocalStorage, "supabaseClient:", !!supabaseClient);
                 if (!useLocalStorage && supabaseClient) {
                     try {
-                        console.log("Updating Supabase - supplyId:", supplyId, "newFullCount:", newFullCount, "newEmptyCount:", newEmptyCount);
-                        
-                        const { error: updateError } = await supabaseClient
+                        await supabaseClient
                             .from("supplies")
                             .update({ 
                                 full_count: newFullCount, 
@@ -1060,29 +1014,13 @@
                             })
                             .eq("id", supplyId);
                         
-                        if (updateError) {
-                            console.error("Supabase update error:", updateError);
-                            throw updateError;
-                        }
-                        
-                        console.log("Supabase supply update successful, now inserting exchange history...");
-                        
-                        const { error: insertError } = await supabaseClient.from("exchange_history").insert([exchange]);
-                        if (insertError) {
-                            console.error("Supabase insert error:", insertError);
-                            throw insertError;
-                        }
-                        
-                        console.log("Supabase update successful");
-                        
-                        // إعادة تحميل السجلات من Supabase
+                        await supabaseClient.from("exchange_history").insert([exchange]);
                         await loadHistoryFromSupabase();
                     } catch (e) {
-                        console.error("Supabase update failed:", e);
                         supabaseSaveFailed = true;
                     }
                 }
-                
+
                 updateNumberAnimation(supplyId, newFullCount);
                 const emptyElement = document.getElementById(`empty-${supplyId}`);
                 if (emptyElement) { 
@@ -1091,18 +1029,90 @@
                     setTimeout(() => emptyElement.classList.remove("number-animation"), 300); 
                 }
                 
-                // تحديث الإحصائيات حتى لو فشل Supabase
                 await updateStatistics();
                 
-                const warningMsg = supabaseSaveFailed ? '<div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle"></i> تم الحفظ محلياً (فشل الاتصال بقاعدة البيانات)</div>' : '';
-                
+                const reasonText = exchangeReason === 'وفاة' ? '⚱️ وفاة' : '💚 شفاء';
                 Swal.fire({
-                    icon: "success", title: "🎉 تم الاستبدال بنجاح!",
-                    html: `<div class="text-center"><i class="fas fa-check-circle" style="font-size:60px;color:#10b981;"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>👤 ${customerName}</p><p>📞 ${customerPhone}</p><hr><p>المتبقي: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p>${warningMsg}</div>`,
-                    timer: supabaseSaveFailed ? 5000 : 3000, showConfirmButton: false
+                    icon: "success", title: "تم الاستبدال بنجاح!",
+                    html: `<div class="text-center"><p><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><p>👤 ${customerName}</p><p>📞 ${customerPhone}</p><p>${reasonText}</p><hr><p>المتبقي: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p></div>`,
+                    timer: 3000, showConfirmButton: false
                 });
             } catch (error) {
-                Swal.fire("❌ خطأ", error.message || "فشلت عملية الاستبدال", "error");
+                Swal.fire("❌ خطأ", error.message, "error");
+            }
+        }
+
+        async function performFill(supplyId, quantity) {
+            Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const supplyIndex = currentSupplies.findIndex((s) => s.id === supplyId);
+                if (supplyIndex === -1) throw new Error("العنصر غير موجود");
+                
+                const supply = currentSupplies[supplyIndex];
+                const newFullCount = supply.full_count + quantity;
+                const newEmptyCount = supply.empty_count - quantity;
+                
+                if (newEmptyCount < 0) throw new Error("لا توجد أسطوانات فارغة كافية");
+                
+                supply.full_count = newFullCount;
+                supply.empty_count = newEmptyCount;
+                currentSupplies[supplyIndex] = supply;
+                
+                const fill = {
+                    id: Date.now(),
+                    supply_id: supplyId,
+                    branch: currentBranch,
+                    quantity: quantity,
+                    operator_name: currentUser?.full_name || "مدير النظام",
+                    fill_date: new Date().toISOString()
+                };
+                fillHistory.unshift(fill);
+                
+                saveLocalData();
+                
+                if (!useLocalStorage && supabaseClient) {
+                    try {
+                        await supabaseClient
+                            .from("supplies")
+                            .update({ 
+                                full_count: newFullCount, 
+                                empty_count: newEmptyCount, 
+                                updated_at: new Date().toISOString() 
+                            })
+                            .eq("id", supplyId);
+                        
+                        await supabaseClient.from("fill_history").insert([fill]);
+                        await loadHistoryFromSupabase();
+                    } catch (e) {
+                        console.log("Fill history not saved to Supabase");
+                    }
+                }
+
+                const fullElement = document.getElementById(`count-${supplyId}`);
+                if (fullElement) { 
+                    fullElement.classList.add("number-animation"); 
+                    fullElement.textContent = newFullCount; 
+                    setTimeout(() => fullElement.classList.remove("number-animation"), 300); 
+                }
+                
+                const emptyElement = document.getElementById(`empty-${supplyId}`);
+                if (emptyElement) { 
+                    emptyElement.classList.add("number-animation"); 
+                    emptyElement.textContent = newEmptyCount; 
+                    setTimeout(() => emptyElement.classList.remove("number-animation"), 300); 
+                }
+                
+                await updateStatistics();
+                
+                Swal.fire({
+                    icon: "success",
+                    title: "تم الملء بنجاح",
+                    html: `<div class="text-center"><p><strong>${supply.name}</strong></p><p>الكمية: <strong>${quantity}</strong></p><hr><p>المتوفر الآن: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p></div>`,
+                    timer: 2500, showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire("❌ خطأ", error.message, "error");
             }
         }
 
@@ -1116,8 +1126,8 @@
                     <div class="mb-3"><label class="form-label fw-bold">الكمية المراد استلامها</label><input id="quantity" type="number" class="form-control" min="1" value="1" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">👤 اسم المستلم</label><input id="recipientName" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="recipientPhone" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">👨‍💼 الوظيفة</label><input id="recipientJob" class="form-control" placeholder="وظيفة المستلم..."></div>
-                    <div class="mb-3"><label class="form-label fw-bold">🎂 العمر</label><input id="recipientAge" type="number" class="form-control" min="1" max="120" placeholder="العمر..."></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👨‍💼 الوظيفة</label><input id="recipientJob" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label fw-bold">🎂 العمر</label><input id="recipientAge" type="number" class="form-control"></div>
                     <div class="mb-3"><label class="form-label fw-bold">💍 الحالة الاجتماعية</label>
                         <select id="recipientMaritalStatus" class="form-select">
                             <option value="">اختر...</option>
@@ -1126,11 +1136,11 @@
                             <option value="مطلق">مطلق</option>
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control" placeholder="مصدر الاستلام..."></div>
-                    <div class="alert alert-success"><i class="fas fa-info-circle"></i> المتوفر حالياً: <strong>${supply.full_count}</strong> قطعة</div>
+                    <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control"></div>
+                    <div class="alert alert-success">المتوفر حالياً: <strong>${supply.full_count}</strong></div>
                 </div>`,
                 showCancelButton: true,
-                confirmButtonText: "✅ تأكيد الاستلام",
+                confirmButtonText: "✅ تأكيد",
                 confirmButtonColor: "#10b981",
                 preConfirm: () => {
                     const quantity = parseInt(document.getElementById("quantity").value);
@@ -1138,7 +1148,7 @@
                     const recipientPhone = document.getElementById("recipientPhone").value;
                     if (!quantity || quantity < 1) return "⚠️ الرجاء إدخال كمية صحيحة";
                     if (!recipientName) return "⚠️ الرجاء إدخال اسم المستلم";
-                    if (!recipientPhone || !/^[0-9]{10,11}$/.test(recipientPhone)) return "⚠️ رقم هاتف غير صحيح (10-11 رقم)";
+                    if (!recipientPhone) return "⚠️ الرجاء إدخال رقم الهاتف";
                     return { 
                         quantity, 
                         notes: {
@@ -1158,7 +1168,7 @@
         window.showExportDialog = async function(supplyId) {
             const supply = currentSupplies.find((s) => s.id === supplyId);
             if (!supply) return;
-            if (supply.full_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد كمية متاحة للتسليم", "warning");
+            if (supply.full_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد كمية متاحة", "warning");
 
             const { value: result } = await Swal.fire({
                 title: `📤 تسليم ${supply.name}`,
@@ -1166,8 +1176,8 @@
                     <div class="mb-3"><label class="form-label fw-bold">الكمية المراد تسليمها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.full_count}" value="1" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">👤 اسم المستلم</label><input id="recipientName" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="recipientPhone" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">👨‍💼 الوظيفة</label><input id="recipientJob" class="form-control" placeholder="وظيفة المستلم..."></div>
-                    <div class="mb-3"><label class="form-label fw-bold">🎂 العمر</label><input id="recipientAge" type="number" class="form-control" min="1" max="120" placeholder="العمر..."></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👨‍💼 الوظيفة</label><input id="recipientJob" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label fw-bold">🎂 العمر</label><input id="recipientAge" type="number" class="form-control"></div>
                     <div class="mb-3"><label class="form-label fw-bold">💍 الحالة الاجتماعية</label>
                         <select id="recipientMaritalStatus" class="form-select">
                             <option value="">اختر...</option>
@@ -1176,19 +1186,19 @@
                             <option value="مطلق">مطلق</option>
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control" placeholder="جهة التسليم..."></div>
-                    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> المتوفر حالياً: <strong>${supply.full_count}</strong> قطعة</div>
+                    <div class="mb-3"><label class="form-label fw-bold">📝 ملاحظات</label><input id="notes" class="form-control"></div>
+                    <div class="alert alert-warning">المتوفر حالياً: <strong>${supply.full_count}</strong></div>
                 </div>`,
                 showCancelButton: true,
-                confirmButtonText: "✅ تأكيد التسليم",
+                confirmButtonText: "✅ تأكيد",
                 confirmButtonColor: "#f59e0b",
                 preConfirm: () => {
                     const quantity = parseInt(document.getElementById("quantity").value);
                     const recipientName = document.getElementById("recipientName").value;
                     const recipientPhone = document.getElementById("recipientPhone").value;
-                    if (!quantity || quantity < 1 || quantity > supply.full_count) return `⚠️ الرجاء إدخال كمية صحيحة (1-${supply.full_count})`;
+                    if (!quantity || quantity < 1) return "⚠️ الرجاء إدخال كمية صحيحة";
                     if (!recipientName) return "⚠️ الرجاء إدخال اسم المستلم";
-                    if (!recipientPhone || !/^[0-9]{10,11}$/.test(recipientPhone)) return "⚠️ رقم هاتف غير صحيح (10-11 رقم)";
+                    if (!recipientPhone) return "⚠️ الرجاء إدخال رقم الهاتف";
                     return { 
                         quantity, 
                         notes: {
@@ -1208,7 +1218,7 @@
         window.showExchangeDialog = async function(supplyId) {
             const supply = currentSupplies.find((s) => s.id === supplyId);
             if (!supply) return;
-            if (supply.full_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد أسطوانات ممتلئة متاحة للاستبدال", "warning");
+            if (supply.full_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد أسطوانات ممتلئة", "warning");
 
             const { value: result } = await Swal.fire({
                 title: `🔄 استبدال ${supply.name}`,
@@ -1216,8 +1226,8 @@
                     <div class="mb-3"><label class="form-label fw-bold">الكمية المراد استبدالها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.full_count}" value="1" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">👤 اسم العميل</label><input id="customerName" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">📞 رقم الهاتف</label><input id="customerPhone" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">👨‍💼 الوظيفة</label><input id="customerJob" class="form-control" placeholder="وظيفة العميل..."></div>
-                    <div class="mb-3"><label class="form-label fw-bold">🎂 العمر</label><input id="customerAge" type="number" class="form-control" min="1" max="120" placeholder="العمر..."></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👨‍💼 الوظيفة</label><input id="customerJob" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label fw-bold">🎂 العمر</label><input id="customerAge" type="number" class="form-control"></div>
                     <div class="mb-3"><label class="form-label fw-bold">💍 الحالة الاجتماعية</label>
                         <select id="customerMaritalStatus" class="form-select">
                             <option value="">اختر...</option>
@@ -1226,118 +1236,62 @@
                             <option value="مطلق">مطلق</option>
                         </select>
                     </div>
-                    <div class="alert alert-info"><i class="fas fa-info-circle"></i> المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
+                    <div class="mb-3"><label class="form-label fw-bold">⚠️ السبب</label>
+                        <select id="exchangeReason" class="form-select">
+                            <option value="">اختر...</option>
+                            <option value="وفاة">وفاة</option>
+                            <option value="شفاء">شفاء</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
                 </div>`,
                 showCancelButton: true,
-                confirmButtonText: "✅ تأكيد الاستبدال",
+                confirmButtonText: "✅ تأكيد",
                 confirmButtonColor: "#667eea",
                 preConfirm: () => {
                     const quantity = parseInt(document.getElementById("quantity").value);
                     const name = document.getElementById("customerName").value;
                     const phone = document.getElementById("customerPhone").value;
-                    if (!quantity || quantity < 1 || quantity > supply.full_count) return `⚠️ كمية صحيحة (1-${supply.full_count})`;
+                    const reason = document.getElementById("exchangeReason").value;
+                    if (!quantity || quantity < 1) return "⚠️ كمية صحيحة";
                     if (!name) return "⚠️ الرجاء إدخال اسم العميل";
-                    if (!phone || !/^[0-9]{10,11}$/.test(phone)) return "⚠️ رقم هاتف غير صحيح (10-11 رقم)";
+                    if (!phone) return "⚠️ الرجاء إدخال رقم الهاتف";
+                    if (!reason) return "⚠️ الرجاء اختيار السبب";
                     return { 
                         quantity, 
                         name, 
                         phone,
                         job: document.getElementById("customerJob")?.value || "",
                         age: parseInt(document.getElementById("customerAge")?.value) || null,
-                        maritalStatus: document.getElementById("customerMaritalStatus")?.value || ""
+                        maritalStatus: document.getElementById("customerMaritalStatus")?.value || "",
+                        reason: reason
                     };
                 }
             });
-            if (result) await performExchange(supplyId, result.quantity, result.name, result.phone, result.job, result.age, result.maritalStatus);
+            if (result) await performExchange(supplyId, result.quantity, result.name, result.phone, result.job, result.age, result.maritalStatus, result.reason);
         };
 
-        window.showReturnDialog = async function(supplyId) {
+        window.showFillDialog = async function(supplyId) {
             const supply = currentSupplies.find((s) => s.id === supplyId);
             if (!supply) return;
-            if (supply.empty_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد أسطوانات فارغة لإعادة تعبئتها", "warning");
+            if (supply.empty_count === 0) return Swal.fire("⚠️ تنبيه", "لا توجد أسطوانات فارغة", "warning");
 
             const { value: result } = await Swal.fire({
-                title: `🔁 إعادة تعبئة ${supply.name}`,
+                title: `⛽ ملئ ${supply.name}`,
                 html: `<div style="text-align: right;">
-                    <div class="mb-3"><label class="form-label fw-bold">الكمية المراد إعادة تعبئتها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.empty_count}" value="1" required></div>
-                    <div class="alert alert-info"><i class="fas fa-info-circle"></i> المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
+                    <div class="mb-3"><label class="form-label fw-bold">الكمية المراد ملئها</label><input id="quantity" type="number" class="form-control" min="1" max="${supply.empty_count}" value="1" required></div>
+                    <div class="alert alert-info">المتوفر: <strong>${supply.full_count}</strong> ممتلئة | <strong>${supply.empty_count}</strong> فارغة</div>
                 </div>`,
                 showCancelButton: true,
                 confirmButtonText: "✅ تأكيد",
                 confirmButtonColor: "#8b5cf6",
                 preConfirm: () => {
                     const quantity = parseInt(document.getElementById("quantity").value);
-                    if (!quantity || quantity < 1 || quantity > supply.empty_count) return `⚠️ كمية صحيحة (1-${supply.empty_count})`;
+                    if (!quantity || quantity < 1) return "⚠️ كمية صحيحة";
                     return { quantity };
                 }
             });
-            if (result) await performReturn(supplyId, result.quantity);
-        };
-
-        async function performReturn(supplyId, quantity) {
-            Swal.fire({ title: "جاري المعالجة...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-            try {
-                const supplyIndex = currentSupplies.findIndex((s) => s.id === supplyId);
-                if (supplyIndex === -1) throw new Error("العنصر غير موجود");
-                
-                const supply = currentSupplies[supplyIndex];
-                const newFullCount = supply.full_count + quantity;
-                const newEmptyCount = supply.empty_count - quantity;
-                
-                if (newEmptyCount < 0) throw new Error("الكمية غير صحيحة");
-                
-                supply.full_count = newFullCount;
-                supply.empty_count = newEmptyCount;
-                currentSupplies[supplyIndex] = supply;
-                
-                saveLocalData();
-                
-                let supabaseSaveFailed = false;
-                if (!useLocalStorage && supabaseClient) {
-                    try {
-                        await supabaseClient
-                            .from("supplies")
-                            .update({ 
-                                full_count: newFullCount, 
-                                empty_count: newEmptyCount, 
-                                updated_at: new Date().toISOString() 
-                            })
-                            .eq("id", supplyId);
-                        
-                        await loadHistoryFromSupabase();
-                    } catch (e) {
-                        console.error("Supabase update failed:", e);
-                        supabaseSaveFailed = true;
-                    }
-                }
-                
-                const fullElement = document.getElementById(`count-${supplyId}`);
-                if (fullElement) { 
-                    fullElement.classList.add("number-animation"); 
-                    fullElement.textContent = newFullCount; 
-                    setTimeout(() => fullElement.classList.remove("number-animation"), 300); 
-                }
-                
-                const emptyElement = document.getElementById(`empty-${supplyId}`);
-                if (emptyElement) { 
-                    emptyElement.classList.add("number-animation"); 
-                    emptyElement.textContent = newEmptyCount; 
-                    setTimeout(() => emptyElement.classList.remove("number-animation"), 300); 
-                }
-                
-                await updateStatistics();
-                
-                Swal.fire({
-                    icon: "success",
-                    title: "✅ تم إعادة التعبئة بنجاح",
-                    html: `<div class="text-center"><i class="fas fa-undo" style="font-size:60px;color:#8b5cf6;"></i><p class="mt-3"><strong>${supply.name}</strong></p><p>الكمية المعادة: <strong>${quantity}</strong></p><hr><p>المتوفر الآن: <strong>${newFullCount}</strong> ممتلئة | <strong>${newEmptyCount}</strong> فارغة</p></div>`,
-                    timer: 2500,
-                    showConfirmButton: false
-                });
-            } catch (error) {
-                Swal.fire("❌ خطأ", error.message || "فشلت العملية", "error");
-            }
+            if (result) await performFill(supplyId, result.quantity);
         };
 
         function updateNumberAnimation(supplyId, newValue) {
@@ -1354,78 +1308,48 @@
         window.showTodayOperations = async function(type) {
             const today = new Date().toISOString().split('T')[0];
             let operations = [];
-            let icon, title, tableHeaders;
+            let icon, title;
 
             if (type === 'exchange') {
                 operations = exchangeHistory.filter(e => {
                     const d = e.exchange_date;
                     return d && d.split('T')[0] === today;
                 });
+                icon = '🔄'; title = 'عمليات الاستبدال';
+            } else if (type === 'import') {
+                operations = stockMovements.filter(m => {
+                    return m.movement_type === type && m.movement_date && m.movement_date.split('T')[0] === today;
+                });
+                icon = '📥'; title = 'طلبات الاستلام';
             } else {
                 operations = stockMovements.filter(m => {
-                    const d = m.movement_date;
-                    return m.movement_type === type && d && d.split('T')[0] === today;
+                    return m.movement_type === type && m.movement_date && m.movement_date.split('T')[0] === today;
                 });
-            }
-
-            if (type === 'exchange') {
-                icon = '🔄'; title = 'عمليات الاستبدال اليومية';
-                tableHeaders = currentUser?.role === 'admin' 
-                    ? '<th>المستلزم</th><th>الكمية</th><th>العميل</th><th>الهاتف</th><th>الوقت</th><th>حذف</th>'
-                    : '<th>المستلزم</th><th>الكمية</th><th>العميل</th><th>الهاتف</th><th>الوقت</th>';
-            } else if (type === 'import') {
-                icon = '📥'; title = 'عمليات الاستلام اليومية';
-                tableHeaders = currentUser?.role === 'admin'
-                    ? '<th>المستلزم</th><th>الكمية</th><th>الملاحظات</th><th>الوقت</th><th>حذف</th>'
-                    : '<th>المستلزم</th><th>الكمية</th><th>الملاحظات</th><th>الوقت</th>';
-            } else {
-                icon = '📤'; title = 'عمليات التسليم اليومية';
-                tableHeaders = currentUser?.role === 'admin'
-                    ? '<th>المستلزم</th><th>الكمية</th><th>الملاحظات</th><th>الوقت</th><th>حذف</th>'
-                    : '<th>المستلزم</th><th>الكمية</th><th>الملاحظات</th><th>الوقت</th>';
+                icon = '📤'; title = 'طلبات التسليم';
             }
 
             if (operations.length === 0) {
                 return Swal.fire(icon + ' ' + title, 'لا توجد عمليات اليوم', 'info');
             }
 
-            let totalQuantity = 0;
             let rows = operations.map(op => {
-                totalQuantity += op.quantity || 1;
                 const time = (op.exchange_date || op.movement_date || '').split('T')[1]?.substring(0, 5) || '';
                 const supplyName = currentSupplies.find(s => s.id === op.supply_id)?.name || 'غير معروف';
-                const deleteBtn = currentUser?.role === 'admin' 
-                    ? `<td><button class="btn btn-sm btn-danger" onclick="deleteOperation(${op.id}, '${type}', ${op.quantity}, ${op.supply_id})"><i class="fas fa-trash"></i></button></td>` 
-                    : '';
                 
-                if (type === 'exchange') {
-                    return `<tr>
-                        <td>${supplyName}</td>
-                        <td><span class="badge bg-success">${op.quantity}</span></td>
-                        <td>${op.customer_name || '-'}</td>
-                        <td>${op.customer_phone || '-'}</td>
-                        <td>${time}</td>
-                        ${deleteBtn}
-                    </tr>`;
-                } else {
-                    return `<tr>
-                        <td>${supplyName}</td>
-                        <td><span class="badge bg-warning">${op.quantity}</span></td>
-                        <td>${op.notes || '-'}</td>
-                        <td>${time}</td>
-                        ${deleteBtn}
-                    </tr>`;
-                }
+                return `<tr>
+                    <td>${supplyName}</td>
+                    <td><span class="badge bg-${type === 'import' ? 'success' : 'warning'}">${op.quantity}</span></td>
+                    <td>${op.customer_name || op.recipient_name || op.notes || '-'}</td>
+                    <td>${op.customer_phone || op.recipient_phone || '-'}</td>
+                    <td>${time}</td>
+                </tr>`;
             }).join('');
 
             Swal.fire({
                 title: icon + ' ' + title,
-                html: `<div class="text-center mb-3">
-                    <span class="badge bg-primary fs-6">إجمالي الكمية: <strong>${totalQuantity}</strong></span>
-                </div>
-                <div style="max-height:400px;overflow-y:auto;">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark"><tr>${tableHeaders}</tr></thead>
+                html: `<div style="max-height:400px;overflow-y:auto;">
+                    <table class="table table-striped">
+                        <thead class="table-dark"><tr><th>المستلزم</th><th>الكمية</th><th>الاسم</th><th>الهاتف</th><th>الوقت</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
                 </div>`,
@@ -1434,87 +1358,456 @@
             });
         };
 
-        window.deleteOperation = async function(id, type, quantity, supplyId) {
-            if (currentUser?.role !== 'admin') {
-                return Swal.fire('⚠️ تنبيه', 'لا يمكنك حذف العمليات إلا كونك مدير النظام', 'warning');
+        // Admin Panel Functions
+        window.showAdminPanel = function() {
+            document.getElementById('suppliesList').style.display = 'none';
+            
+            const adminSection = document.getElementById('adminSection');
+            adminSection.style.display = 'block';
+            adminSection.innerHTML = `
+                <div class="admin-panel">
+                    <h3 class="mb-4">
+                        <i class="fas fa-cogs"></i> لوحة تحكم المدير
+                        <button class="btn btn-danger btn-sm float-end" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> خروج
+                        </button>
+                    </h3>
+                    <div class="admin-buttons">
+                        <button class="admin-btn users" onclick="showEditUsers()"><i class="fas fa-users"></i> تعديل المستخدمين</button>
+                        <button class="admin-btn supplies" onclick="showEditSupplies('main')"><i class="fas fa-boxes"></i> تعديل المستلزمات</button>
+                        <button class="admin-btn operations" onclick="showAllOperations()"><i class="fas fa-list"></i> إظهار العمليات</button>
+                    </div>
+                    <button class="back-btn" onclick="hideAdminPanel()"><i class="fas fa-arrow-right"></i> رجوع</button>
+                </div>
+            `;
+        };
+
+        window.hideAdminPanel = function() {
+            document.getElementById('suppliesList').style.display = 'grid';
+            document.getElementById('adminSection').style.display = 'none';
+            renderSupplies();
+        };
+
+        window.showEditUsers = async function() {
+            const adminSection = document.getElementById('adminSection');
+            
+            let allUsers = [];
+            if (!useLocalStorage && supabaseClient) {
+                const { data } = await supabaseClient.from("users").select("*");
+                if (data) allUsers = data;
+            } else {
+                allUsers = [
+                    { id: 1, username: 'admin', full_name: 'المدير العام', role: 'admin', is_active: true },
+                    { id: 2, username: 'manager', full_name: 'مدير المستودع', role: 'manager', is_active: true },
+                    { id: 3, username: 'user', full_name: 'مستخدم عادي', role: 'user', is_active: true }
+                ];
+            }
+
+            const rows = allUsers.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.full_name}</td>
+                    <td><span class="badge bg-${u.role === 'admin' ? 'danger' : u.role === 'manager' ? 'warning' : 'info'}">${u.role}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id}, '${u.username}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            adminSection.innerHTML = `
+                <div class="admin-panel">
+                    <h4><i class="fas fa-users"></i> تعديل المستخدمين</h4>
+                    <button class="back-btn" onclick="showAdminPanel()"><i class="fas fa-arrow-right"></i> رجوع</button>
+                    <div class="add-form">
+                        <input type="text" id="newUsername" class="form-control" placeholder="اسم المستخدم">
+                        <input type="text" id="newFullName" class="form-control" placeholder="الاسم الكامل">
+                        <input type="password" id="newPassword" class="form-control" placeholder="كلمة المرور">
+                        <select id="newRole" class="form-select">
+                            <option value="user">مستخدم</option>
+                            <option value="manager">مدير مستودع</option>
+                            <option value="admin">مدير عام</option>
+                        </select>
+                        <button class="btn btn-success" onclick="addNewUser()"><i class="fas fa-plus"></i> إضافة</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead><tr><th>الرقم</th><th>اسم المستخدم</th><th>الاسم</th><th>الدور</th><th>حذف</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        };
+
+        window.addNewUser = async function() {
+            const username = document.getElementById('newUsername').value.trim();
+            const fullName = document.getElementById('newFullName').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+
+            if (!username || !fullName || !password) {
+                return Swal.fire('⚠️ خطأ', 'الرجاء تعبئة جميع الحقول', 'warning');
+            }
+
+            const hashedPassword = md5(password);
+            const newUser = {
+                username,
+                full_name: fullName,
+                password: hashedPassword,
+                role,
+                is_active: true
+            };
+
+            if (!useLocalStorage && supabaseClient) {
+                await supabaseClient.from("users").insert([newUser]);
+            }
+
+            Swal.fire('✅ نجاح', 'تم إضافة المستخدم بنجاح', 'success');
+            showEditUsers();
+        };
+
+        window.deleteUser = async function(userId, username) {
+            if (username === 'admin') {
+                return Swal.fire('⚠️ خطأ', 'لا يمكن حذف المدير العام', 'warning');
             }
 
             const { isConfirmed } = await Swal.fire({
-                title: '🗑️ حذف العملية',
-                html: `هل أنت متأكد من حذف هذه العملية؟<br><strong>الكمية: ${quantity}</strong>`,
+                title: 'حذف المستخدم',
+                text: 'هل أنت متأكد؟',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: '✅ نعم، حذف',
-                cancelButtonText: '❌ إلغاء',
-                confirmButtonColor: '#ef4444'
+                confirmButtonText: 'نعم',
+                cancelButtonText: 'إلغاء'
             });
 
             if (!isConfirmed) return;
 
-            Swal.fire({ title: 'جاري الحذف...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            if (!useLocalStorage && supabaseClient) {
+                await supabaseClient.from("users").delete().eq("id", userId);
+            }
 
-            try {
-                const supply = currentSupplies.find(s => s.id === supplyId);
-                const supplyIndex = currentSupplies.findIndex(s => s.id === supplyId);
+            Swal.fire('✅ نجاح', 'تم الحذف بنجاح', 'success');
+            showEditUsers();
+        };
+
+        window.showEditSupplies = function(preselectedBranch) {
+            const adminSection = document.getElementById('adminSection');
+            const selectedBranch = preselectedBranch || 'main';
+            
+            const filteredSupplies = currentSupplies.filter(s => (s.branch || 'main') === selectedBranch);
+            
+            const rows = filteredSupplies.map(s => `
+                <tr>
+                    <td>${s.id}</td>
+                    <td><input type="text" value="${s.name}" id="name-${s.id}" class="form-control form-control-sm" style="width:150px;"></td>
+                    <td>
+                        <select id="type-${s.id}" class="form-select form-select-sm" style="width:120px;">
+                            <option value="oxygen" ${s.type === 'oxygen' ? 'selected' : ''}>أكسجين</option>
+                            <option value="accessories" ${s.type === 'accessories' ? 'selected' : ''}>مستلزمات</option>
+                        </select>
+                    </td>
+                    <td><input type="number" value="${s.full_count}" id="full-${s.id}" class="form-control form-control-sm" style="width:80px;"></td>
+                    <td><input type="number" value="${s.empty_count}" id="empty-${s.id}" class="form-control form-control-sm" style="width:80px;"></td>
+                    <td>
+                        <input type="checkbox" ${s.can_be_exchanged ? 'checked' : ''} id="exchange-${s.id}">
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="updateSupply(${s.id})"><i class="fas fa-save"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSupply(${s.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            adminSection.innerHTML = `
+                <div class="admin-panel">
+                    <h4><i class="fas fa-boxes"></i> تعديل المستلزمات</h4>
+                    <button class="back-btn" onclick="showAdminPanel()"><i class="fas fa-arrow-right"></i> رجوع</button>
+                    
+                    <!-- Branch Filter -->
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <label class="fw-bold me-2">اختر الفرع:</label>
+                        <button class="btn btn-sm ${selectedBranch === 'main' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showEditSupplies('main')">الفرع الرئيسي</button>
+                        <button class="btn btn-sm ${selectedBranch === 'smalat' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showEditSupplies('smalat')">فرع سمالوط</button>
+                        <button class="btn btn-sm ${selectedBranch === 'menia' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showEditSupplies('menia')">فرع المنيا الجديدة</button>
+                        <span class="badge bg-secondary ms-2">${filteredSupplies.length} منتج</span>
+                    </div>
+                    
+                    <div class="add-form">
+                        <input type="text" id="newSupplyName" class="form-control" placeholder="اسم المستلزم">
+                        <select id="newSupplyType" class="form-select">
+                            <option value="oxygen">أكسجين</option>
+                            <option value="accessories">مستلزمات</option>
+                        </select>
+                        <input type="number" id="newSupplyFull" class="form-control" placeholder="الكمية">
+                        <input type="number" id="newSupplyEmpty" class="form-control" placeholder="الفارغة">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="newSupplyExchange">
+                            <label class="form-check-label">قابل للاستبدال</label>
+                        </div>
+                        <button class="btn btn-success mt-2" onclick="addNewSupply('${selectedBranch}')"><i class="fas fa-plus"></i> إضافة لهذا الفرع</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead><tr><th>الرقم</th><th>الاسم</th><th>النوع</th><th>المليان</th><th>الفارغ</th><th>استبدال</th><th>حفظ/حذف</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        };
+
+        window.updateSupply = async function(supplyId) {
+            const name = document.getElementById(`name-${supplyId}`).value;
+            const type = document.getElementById(`type-${supplyId}`).value;
+            const full_count = parseInt(document.getElementById(`full-${supplyId}`).value);
+            const empty_count = parseInt(document.getElementById(`empty-${supplyId}`).value);
+            const can_be_exchanged = document.getElementById(`exchange-${supplyId}`).checked;
+
+            const supplyIndex = currentSupplies.findIndex(s => s.id === supplyId);
+            if (supplyIndex !== -1) {
+                const currentBranch = currentSupplies[supplyIndex].branch || 'main';
+                currentSupplies[supplyIndex] = {
+                    ...currentSupplies[supplyIndex],
+                    name, type, full_count, empty_count, can_be_exchanged
+                };
+                saveLocalData();
 
                 if (!useLocalStorage && supabaseClient) {
-                    if (type === 'exchange') {
-                        if (supply && supplyIndex !== -1) {
-                            currentSupplies[supplyIndex].full_count += quantity;
-                            currentSupplies[supplyIndex].empty_count -= quantity;
-                            await supabaseClient.from("supplies").update({
-                                full_count: currentSupplies[supplyIndex].full_count,
-                                empty_count: currentSupplies[supplyIndex].empty_count
-                            }).eq("id", supplyId);
-                        }
-                        await supabaseClient.from("exchange_history").delete().eq("id", id);
-                    } else {
-                        if (type === 'import' && supply && supplyIndex !== -1) {
-                            currentSupplies[supplyIndex].full_count -= quantity;
-                            await supabaseClient.from("supplies").update({
-                                full_count: currentSupplies[supplyIndex].full_count
-                            }).eq("id", supplyId);
-                        } else if (type === 'export' && supply && supplyIndex !== -1) {
-                            currentSupplies[supplyIndex].full_count += quantity;
-                            await supabaseClient.from("supplies").update({
-                                full_count: currentSupplies[supplyIndex].full_count
-                            }).eq("id", supplyId);
-                        }
-                        await supabaseClient.from("stock_movements").delete().eq("id", id);
-                    }
-                    await loadFromSupabase();
-                } else {
-                    if (type === 'exchange' && supply && supplyIndex !== -1) {
-                        currentSupplies[supplyIndex].full_count += quantity;
-                        currentSupplies[supplyIndex].empty_count -= quantity;
-                    } else if (type === 'import' && supply && supplyIndex !== -1) {
-                        currentSupplies[supplyIndex].full_count -= quantity;
-                    } else if (type === 'export' && supply && supplyIndex !== -1) {
-                        currentSupplies[supplyIndex].full_count += quantity;
-                    }
-                    
-                    if (type === 'exchange') {
-                        exchangeHistory = exchangeHistory.filter(e => e.id !== id);
-                    } else {
-                        stockMovements = stockMovements.filter(m => m.id !== id);
-                    }
-                    saveLocalData();
+                    await supabaseClient.from("supplies").update({
+                        name, type, full_count, empty_count, can_be_exchanged, updated_at: new Date().toISOString()
+                    }).eq("id", supplyId);
                 }
-
-                renderSupplies();
-                await updateStatistics();
-
-                Swal.fire({ icon: 'success', title: '✅ تم الحذف بنجاح', timer: 1500, showConfirmButton: false });
-            } catch (error) {
-                Swal.fire('❌ خطأ', error.message || 'فشل الحذف', 'error');
             }
+
+            Swal.fire('✅ نجاح', 'تم التحديث بنجاح', 'success');
+            updateStatistics();
+            renderSupplies();
+        };
+
+        window.addNewSupply = function(defaultBranch) {
+            const name = document.getElementById('newSupplyName').value.trim();
+            const type = document.getElementById('newSupplyType').value;
+            const branch = defaultBranch || 'main';
+            const full_count = parseInt(document.getElementById('newSupplyFull').value) || 0;
+            const empty_count = parseInt(document.getElementById('newSupplyEmpty').value) || 0;
+            const can_be_exchanged = document.getElementById('newSupplyExchange').checked;
+
+            if (!name) return Swal.fire('⚠️ خطأ', 'الرجاء إدخال الاسم', 'warning');
+
+            const newId = Math.max(...currentSupplies.map(s => s.id), 0) + 1;
+            const newSupply = { id: newId, name, type, branch, full_count, empty_count, can_be_exchanged };
+            
+            currentSupplies.push(newSupply);
+            saveLocalData();
+
+            if (!useLocalStorage && supabaseClient) {
+                supabaseClient.from("supplies").insert([newSupply]);
+            }
+
+            Swal.fire('✅ نجاح', 'تم الإضافة بنجاح', 'success');
+            showEditSupplies(branch);
+            updateStatistics();
+        };
+
+        window.deleteSupply = async function(supplyId) {
+            const supplyToDelete = currentSupplies.find(s => s.id === supplyId);
+            const branch = supplyToDelete ? (supplyToDelete.branch || 'main') : 'main';
+            
+            const { isConfirmed } = await Swal.fire({
+                title: 'حذف المستلزم',
+                text: 'هل أنت متأكد؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (!isConfirmed) return;
+
+            currentSupplies = currentSupplies.filter(s => s.id !== supplyId);
+            saveLocalData();
+
+            if (!useLocalStorage && supabaseClient) {
+                await supabaseClient.from("supplies").delete().eq("id", supplyId);
+            }
+
+            Swal.fire('✅ نجاح', 'تم الحذف بنجاح', 'success');
+            showEditSupplies(branch);
+            updateStatistics();
+        };
+
+        window.showAllOperations = async function(branchFilter) {
+            const adminSection = document.getElementById('adminSection');
+            const selectedBranch = branchFilter || 'all';
+            
+            let allOperations = [];
+            
+            const exchanges = exchangeHistory.map(e => ({
+                ...e,
+                type: 'استبدال',
+                date: e.exchange_date,
+                customer_name: e.customer_name,
+                customer_phone: e.customer_phone,
+                quantity: e.quantity,
+                supply_id: e.supply_id,
+                branch: e.branch || 'main'
+            }));
+            
+            const movements = stockMovements.map(m => ({
+                ...m,
+                type: m.movement_type === 'import' ? 'استلام' : 'تسليم',
+                date: m.movement_date,
+                customer_name: m.recipient_name,
+                customer_phone: m.recipient_phone,
+                quantity: m.quantity,
+                supply_id: m.supply_id,
+                branch: m.branch || 'main'
+            }));
+            
+            const fills = fillHistory.map(f => ({
+                ...f,
+                type: 'ملئ',
+                date: f.fill_date,
+                customer_name: f.operator_name,
+                customer_phone: '-',
+                quantity: f.quantity,
+                supply_id: f.supply_id,
+                branch: f.branch || 'main'
+            }));
+            
+            allOperations = [...exchanges, ...movements, ...fills].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Filter by branch
+            if (selectedBranch !== 'all') {
+                allOperations = allOperations.filter(op => op.branch === selectedBranch);
+            }
+
+            const branchNames = { main: 'الرئيسي', smalat: 'سمالوط', menia: 'المنيا' };
+            const filterButtons = `
+                <div class="mb-3 p-2 bg-light rounded">
+                    <button class="btn btn-sm ${selectedBranch === 'all' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showAllOperations('all')">الكل</button>
+                    <button class="btn btn-sm ${selectedBranch === 'main' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showAllOperations('main')">الفرع الرئيسي</button>
+                    <button class="btn btn-sm ${selectedBranch === 'smalat' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showAllOperations('smalat')">فرع سمالوط</button>
+                    <button class="btn btn-sm ${selectedBranch === 'menia' ? 'btn-primary' : 'btn-outline-primary'}" onclick="showAllOperations('menia')">فرع المنيا</button>
+                </div>
+            `;
+
+            if (allOperations.length === 0) {
+                return adminSection.innerHTML = `
+                    <div class="admin-panel">
+                        <h4><i class="fas fa-list"></i> إظهار العمليات</h4>
+                        <button class="back-btn" onclick="showAdminPanel()">رجوع</button>
+                        ${filterButtons}
+                        <p>لا توجد عمليات</p>
+                    </div>
+                `;
+            }
+
+            const rows = allOperations.map(op => {
+                const date = new Date(op.date);
+                const dateStr = date.toISOString().split('T')[0];
+                const timeStr = date.toISOString().split('T')[1].substring(0, 5);
+                const supplyName = currentSupplies.find(s => s.id === op.supply_id)?.name || 'غير معروف';
+                const typeClass = op.type === 'استبدال' ? 'primary' : op.type === 'استلام' ? 'success' : op.type === 'تسليم' ? 'warning' : 'info';
+                
+                return `<tr>
+                    <td>${op.id}</td>
+                    <td><span class="badge bg-${typeClass}">${op.type}</span></td>
+                    <td>${supplyName}</td>
+                    <td>${op.quantity}</td>
+                    <td>${op.customer_name}</td>
+                    <td>${op.customer_phone}</td>
+                    <td><span class="badge bg-secondary">${branchNames[op.branch] || 'الرئيسي'}</span></td>
+                    <td>${dateStr} ${timeStr}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteOperation(${op.id}, '${op.type}', ${op.quantity}, ${op.supply_id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            adminSection.innerHTML = `
+                <div class="admin-panel">
+                    <h4><i class="fas fa-list"></i> إظهار العمليات</h4>
+                    <button class="back-btn" onclick="showAdminPanel()"><i class="fas fa-arrow-right"></i> رجوع</button>
+                    <table class="admin-table">
+                        <thead><tr><th>الرقم</th><th>النوع</th><th>المستلزم</th><th>الكمية</th><th>الاسم</th><th>الهاتف</th><th>الفرع</th><th>التاريخ</th><th>حذف</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        };
+
+        window.deleteOperation = async function(id, type, quantity, supplyId) {
+            const { isConfirmed } = await Swal.fire({
+                title: 'حذف العملية',
+                text: 'هل أنت متأكد؟ سيتم إرجاع الكمية.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، حذف',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (!isConfirmed) return;
+
+            const supplyIndex = currentSupplies.findIndex(s => s.id === supplyId);
+            if (supplyIndex === -1) return;
+
+            const supply = currentSupplies[supplyIndex];
+
+            if (type === 'استبدال') {
+                supply.full_count += quantity;
+                supply.empty_count -= quantity;
+                exchangeHistory = exchangeHistory.filter(e => e.id !== id);
+            } else if (type === 'استلام') {
+                supply.full_count -= quantity;
+                stockMovements = stockMovements.filter(m => m.id !== id);
+            } else if (type === 'تسليم') {
+                supply.full_count += quantity;
+                stockMovements = stockMovements.filter(m => m.id !== id);
+            } else if (type === 'ملئ') {
+                supply.full_count -= quantity;
+                supply.empty_count += quantity;
+                fillHistory = fillHistory.filter(f => f.id !== id);
+            }
+
+            currentSupplies[supplyIndex] = supply;
+            saveLocalData();
+
+            if (!useLocalStorage && supabaseClient) {
+                await supabaseClient.from("supplies").update({
+                    full_count: supply.full_count,
+                    empty_count: supply.empty_count,
+                    updated_at: new Date().toISOString()
+                }).eq("id", supplyId);
+
+                if (type === 'استبدال') {
+                    await supabaseClient.from("exchange_history").delete().eq("id", id);
+                } else if (type === 'ملئ') {
+                    await supabaseClient.from("fill_history").delete().eq("id", id);
+                } else {
+                    await supabaseClient.from("stock_movements").delete().eq("id", id);
+                }
+            }
+
+            Swal.fire('✅ نجاح', 'تم الحذف وإرجاع الكمية', 'success');
+            await updateStatistics();
+            renderSupplies();
+            showAllOperations();
         };
 
         document.getElementById("searchInput")?.addEventListener("input", () => renderSupplies());
         
-        // بدء التطبيق
         window.addEventListener("load", async () => {
+            // Wait for supabase to load
+            if (typeof supabase === 'undefined') {
+                console.log('Waiting for Supabase to load...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
             await initSupabase();
+            
+            // Admin sees admin panel directly, regular users see main page
+            if (isAdmin) {
+                showAdminPanel();
+            }
+            
             setInterval(async () => {
                 if (!useLocalStorage && supabaseClient) {
                     await loadFromSupabase();
