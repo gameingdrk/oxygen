@@ -567,10 +567,19 @@
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
 
+            if (!username || !password) {
+                Swal.fire('❌ خطأ', 'الرجاء إدخال اسم المستخدم وكلمة المرور', 'error');
+                return;
+            }
+
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
 
             try {
+                let loggedIn = false;
+                let userRole = 'user';
+                
+                // Try Supabase first
                 if (!useLocalStorage && supabaseClient) {
                     const { data, error } = await supabaseClient
                         .from('users')
@@ -580,32 +589,30 @@
 
                     if (!error && data) {
                         const hashedPassword = md5(password);
-                        if (data.password === hashedPassword || password === '2141') {
+                        if (data.password === hashedPassword) {
                             currentUser = data;
                             isAdmin = currentUser.role === 'admin';
                             localStorage.setItem('oxygen_current_user', JSON.stringify(data));
-                            showApp();
-                            return;
+                            loggedIn = true;
                         }
                     }
-                } else {
-                    if (username === 'admin' && password === '2141') {
-                        currentUser = { id: 1, username: 'admin', full_name: 'المدير العام', role: 'admin' };
-                        isAdmin = true;
-                        localStorage.setItem('oxygen_current_user', JSON.stringify(currentUser));
-                        showApp();
-                        return;
-                    }
                 }
-                Swal.fire('❌ خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
-            } catch (error) {
-                if (username === 'admin' && password === '2141') {
+                
+                // Local fallback - only for admin with correct password
+                if (!loggedIn && username === 'admin' && password === '2141') {
                     currentUser = { id: 1, username: 'admin', full_name: 'المدير العام', role: 'admin' };
                     isAdmin = true;
                     localStorage.setItem('oxygen_current_user', JSON.stringify(currentUser));
-                    showApp();
-                    return;
+                    loggedIn = true;
                 }
+                
+                if (loggedIn) {
+                    showApp();
+                } else {
+                    Swal.fire('❌ خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                }
+            } catch (error) {
+                console.log('Login error:', error);
                 Swal.fire('❌ خطأ', 'اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
             } finally {
                 loginBtn.disabled = false;
