@@ -515,6 +515,9 @@
             <i class="fas fa-arrow-up"></i>
         </button>
         <div class="db-status" id="dbStatus">🔄 جاري التحميل...</div>
+        <button class="btn btn-danger btn-sm position-fixed" style="bottom: 20px; left: 150px; z-index: 1000; border-radius: 20px; padding: 5px 15px;" onclick="clearAllLocalStorage()">
+            <i class="fas fa-trash"></i> مسح التخزين
+        </button>
     </div>
 
     <script>
@@ -550,6 +553,34 @@
 
         function md5(string) {
             return CryptoJS.MD5(string).toString();
+        }
+        
+        function clearAllLocalStorage() {
+            Swal.fire({
+                title: 'مسح التخزين المحلي',
+                text: 'سيتم حذف كل البيانات المخزنة محلياً. هل أنت متأكد؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، امسح',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('oxygen_supplies');
+                    localStorage.removeItem('oxygen_exchanges');
+                    localStorage.removeItem('oxygen_movements');
+                    localStorage.removeItem('oxygen_fills');
+                    localStorage.removeItem('oxygen_current_user');
+                    currentSupplies = [];
+                    exchangeHistory = [];
+                    stockMovements = [];
+                    fillHistory = [];
+                    currentUser = null;
+                    updateStatistics();
+                    renderSupplies();
+                    Swal.fire('✅ تم', 'تم مسح التخزين المحلي بنجاح', 'success');
+                }
+            });
         }
 
         function checkLogin() {
